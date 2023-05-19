@@ -1,9 +1,7 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
-namespace Data;
+namespace Models;
 
-[SuppressMessage("Usage", "CS8168", Justification = "Only constructed in deserialization")]
 public class Config {
 	
 	public const string PATH = "config.json";

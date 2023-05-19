@@ -1,8 +1,9 @@
-using Data;
 using Discord;
 using Discord.Net;
 using Discord.WebSocket;
+using Models;
 using Newtonsoft.Json;
+using Structs;
 
 namespace Tasks;
 

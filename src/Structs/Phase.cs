@@ -1,8 +1,11 @@
 using System.Diagnostics;
-using Data;
 using Discord;
+using Models;
+
+namespace Structs;
 
 public enum Phase {
+	Planning,
 	Signups,
 	Test,
 	Build,
@@ -26,14 +29,14 @@ public static class PhaseExtensions {
 		return new Game(status, ActivityType.Playing);
 	}
 
-	public static IActivity GetActivity(this Phase phase, Config config)
+	public static IActivity? GetActivity(this Phase phase, Config config)
 		=> phase switch {
 			Phase.Signups => Watching("for signups"),
 			Phase.Test => Playing("and testing"),
 			Phase.Build => Playing("and building"),
 			Phase.Verify => Watching("and verifying"),
 			Phase.Open => Playing(config.ConName),
-			_ => throw new UnreachableException()
+			_ => null
 		};
 
 	public static void AddToOption(this Phase phase, SlashCommandOptionBuilder builder) {

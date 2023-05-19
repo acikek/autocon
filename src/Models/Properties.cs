@@ -9,6 +9,10 @@ public class Properties {
 
 	public Phase Phase { get; set; }
 
+	public void ProgressPhase() {
+		this.Phase += 1;
+	}
+
 	public static Properties Read() {
 		if (!File.Exists(PATH)) {
 			var properties = new Properties {

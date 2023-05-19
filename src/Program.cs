@@ -17,6 +17,7 @@ var token = Environment.GetEnvironmentVariable("AUTOCON_TOKEN");
 client.Log += Log;
 client.Ready += () => Tasks.OnReady(client, config);
 client.SlashCommandExecuted += (command) => Tasks.OnCommand(command, properties);
+client.ButtonExecuted += (component) => Tasks.OnButton(component, properties);
 
 await client.LoginAsync(TokenType.Bot, token);
 await client.StartAsync();

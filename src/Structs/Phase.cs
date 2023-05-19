@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Discord;
 using Models;
 
@@ -18,9 +17,6 @@ public static class PhaseExtensions {
 	public static string GetName(this Phase phase)
 		=> Enum.GetName(typeof(Phase), phase) ?? "Unknown";
 
-	public static string GetId(this Phase phase)
-		=> phase.GetName().ToLower();
-
 	private static IActivity Watching(string status) {
 		return new Game(status, ActivityType.Watching);
 	}
@@ -39,15 +35,16 @@ public static class PhaseExtensions {
 			_ => null
 		};
 
-	public static void AddToOption(this Phase phase, SlashCommandOptionBuilder builder) {
-		builder.AddChoice(phase.GetName(), (int) phase);
-	}
-}
+	public static string? GetAdditionalWarning(this Phase phase)
+		=> phase switch {
+			Phase.Signups => "a selection menu leading to a submission form will be sent in **this channel**.",
+			Phase.Build => "submissions will be **closed off permanently**.",
+			_ => null
+		};
 
-public static class Phases {
-	public static void AddAllToOption(SlashCommandOptionBuilder builder) {
-		foreach (Phase phase in Enum.GetValues(typeof(Phase))) {
-			phase.AddToOption(builder);
-		}
-	}
+	public static Phase GetNext(this Phase phase)
+		=> phase + 1;
+
+	public static bool IsFinal(this Phase phase)
+		=> phase == Phase.Verify;
 }

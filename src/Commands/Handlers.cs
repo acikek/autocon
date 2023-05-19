@@ -30,33 +30,33 @@ public class Handlers {
 		return message + "\n\nAre you sure about this? **You cannot undo this action!**";
 	}
 
-	public static async Task HandleAdmin(SocketSlashCommand command, Properties properties) {
+	public static async Task HandleAdmin(SocketSlashCommand command, Context context) {
 		var sub = command.Data.Options.First();
 
 		if (sub.Name == Commands.PROGRESS) {
-			if (properties.Phase.IsFinal()) {
+			if (context.Properties.Phase.IsFinal()) {
 				await command.RespondAsync("The convention is already in the final phase!", ephemeral: true);
 				return;
 			}
-			var message = GetProgressionMessage(properties.Phase.GetNext());
+			var message = GetProgressionMessage(context.Properties.Phase.GetNext());
 			await command.RespondAsync(message, components: GetProgressionButtons(true), ephemeral: true);
 		}
 	}
 
-	public static async Task HandleProgress(SocketMessageComponent component, Properties properties) {
+	public static async Task HandleProgress(SocketMessageComponent component, Context context) {
 		string result = component.Data.CustomId.Split("progress_")[1];
 		bool progress = result == "yes";
 
 		if (progress)
 		{
-			properties.ProgressPhase();
-			properties.Write();
+			await context.Properties.ProgressPhase(context);
+			context.Properties.Write();
 		}
 
 		await component.UpdateAsync(msg =>
 		{
 			msg.Content = progress
-				? $"The con progressed to the **{properties.Phase.GetName()}** phase successfully."
+				? $"The con progressed to the **{context.Properties.Phase.GetName()}** phase successfully."
 				: "Progression aborted."; 
 			msg.Components = GetProgressionButtons(false);
 		});

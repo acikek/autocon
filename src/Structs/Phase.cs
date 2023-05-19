@@ -25,13 +25,13 @@ public static class PhaseExtensions {
 		return new Game(status, ActivityType.Playing);
 	}
 
-	public static IActivity? GetActivity(this Phase phase, Config config)
+	public static IActivity? GetActivity(this Phase phase, Context context)
 		=> phase switch {
 			Phase.Signups => Watching("for signups"),
 			Phase.Test => Playing("and testing"),
 			Phase.Build => Playing("and building"),
 			Phase.Verify => Watching("and verifying"),
-			Phase.Open => Playing(config.ConName),
+			Phase.Open => Playing(context.Config.ConName),
 			_ => null
 		};
 
@@ -39,6 +39,7 @@ public static class PhaseExtensions {
 		=> phase switch {
 			Phase.Signups => "a selection menu leading to a submission form will be sent in **this channel**.",
 			Phase.Build => "submissions will be **closed off permanently**.",
+			Phase.Open => "**this will open the convention channels to everyone!**",
 			_ => null
 		};
 
@@ -46,5 +47,5 @@ public static class PhaseExtensions {
 		=> phase + 1;
 
 	public static bool IsFinal(this Phase phase)
-		=> phase == Phase.Verify;
+		=> phase == Phase.Open;
 }

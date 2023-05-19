@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Discord.WebSocket;
 using Structs;
 
 namespace Models;
@@ -9,8 +10,13 @@ public class Properties {
 
 	public Phase Phase { get; set; }
 
-	public void ProgressPhase() {
+	public async Task UpdateActivity(Context context) {
+		await context.Client.SetActivityAsync(this.Phase.GetActivity(context));
+	}
+
+	public async Task ProgressPhase(Context context) {
 		this.Phase += 1;
+		await UpdateActivity(context);
 	}
 
 	public static Properties Read() {

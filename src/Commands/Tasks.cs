@@ -7,8 +7,8 @@ namespace Commands;
 
 public class Tasks {
 
-	public static async Task OnReady(DiscordSocketClient client, Config config) {
-		var guild = client.GetGuild(config.GuildId);
+	public static async Task OnReady(Context context) {
+		var guild = context.Client.GetGuild(context.Config.GuildId);
 
 		try
 		{
@@ -21,17 +21,17 @@ public class Tasks {
 		}
 	}
 
-	public static async Task OnCommand(SocketSlashCommand command, Properties properties) {
+	public static async Task OnCommand(SocketSlashCommand command, Context context) {
 		switch (command.Data.Name) {
 			case Commands.ADMIN: 
-				await Handlers.HandleAdmin(command, properties);
+				await Handlers.HandleAdmin(command, context);
 				break;
 		}
 	}
 
-	public static async Task OnButton(SocketMessageComponent component, Properties properties) {
+	public static async Task OnButton(SocketMessageComponent component, Context context) {
 		if (component.Data.CustomId.StartsWith("progress")) {
-			await Handlers.HandleProgress(component, properties);
+			await Handlers.HandleProgress(component, context);
 		}
 	}
 }

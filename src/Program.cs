@@ -8,16 +8,23 @@ Task Log(LogMessage message) {
 	return Task.CompletedTask;
 }
 
+var client = new DiscordSocketClient();
 var config = Config.Read();
 var properties = Properties.Read();
 
-var client = new DiscordSocketClient();
-var token = Environment.GetEnvironmentVariable("AUTOCON_TOKEN");
+var context = new Context(client, config, properties);
 
 client.Log += Log;
-client.Ready += () => Tasks.OnReady(client, config);
-client.SlashCommandExecuted += (command) => Tasks.OnCommand(command, properties);
-client.ButtonExecuted += (component) => Tasks.OnButton(component, properties);
+
+client.Ready += async () => {
+	await properties.UpdateActivity(context);
+	await Tasks.OnReady(context);
+};
+
+client.SlashCommandExecuted += (command) => Tasks.OnCommand(command, context);
+client.ButtonExecuted += (component) => Tasks.OnButton(component, context);
+
+var token = Environment.GetEnvironmentVariable("AUTOCON_TOKEN");
 
 await client.LoginAsync(TokenType.Bot, token);
 await client.StartAsync();

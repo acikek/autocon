@@ -1,25 +1,26 @@
-using System.Text.Json;
-using Discord.WebSocket;
+using Newtonsoft.Json;
 using Structs;
 
 namespace Models;
 
-public class Properties {
+public class Properties 
+{
 
 	public const string PATH = "data/properties.json";
 
 	public Phase Phase { get; set; }
 
-	public async Task UpdateActivity(Context context) {
-		await context.Client.SetActivityAsync(this.Phase.GetActivity(context));
-	}
+	public async Task UpdateActivity(Context context) 
+		=> await context.Client.SetActivityAsync(this.Phase.GetActivity(context));
 
-	public async Task ProgressPhase(Context context) {
+	public async Task ProgressPhase(Context context) 
+	{
 		this.Phase += 1;
 		await UpdateActivity(context);
 	}
 
-	public static Properties Read() {
+	public static Properties Read() 
+	{
 		if (!File.Exists(PATH)) {
 			var properties = new Properties {
 				Phase = Phase.Planning
@@ -28,15 +29,16 @@ public class Properties {
 			return properties;
 		}
 		string json = File.ReadAllText(PATH);
-		var value = JsonSerializer.Deserialize<Properties>(json);
+		var value = JsonConvert.DeserializeObject<Properties>(json);
 		if (value is null) {
 			throw new NullReferenceException("Property storage cannot be null");
 		}
 		return (Properties) value;
 	}
 
-	public void Write() {
-		var json = JsonSerializer.Serialize(this, typeof(Properties));
+	public void Write() 
+	{
+		var json = JsonConvert.SerializeObject(this);
 		File.WriteAllText(PATH, json);
 	}
 }

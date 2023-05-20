@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Database;
 
-public partial class AutoConEntities : DbContext {
+public partial class AutoConEntities : DbContext 
+{
 
 	public const string SOURCE = "data/autocon.db";
 

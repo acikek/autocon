@@ -1,5 +1,4 @@
 using Discord;
-using Models;
 
 namespace Structs;
 
@@ -17,13 +16,11 @@ public static class PhaseExtensions {
 	public static string GetName(this Phase phase)
 		=> Enum.GetName(typeof(Phase), phase) ?? "Unknown";
 
-	private static IActivity Watching(string status) {
-		return new Game(status, ActivityType.Watching);
-	}
+	private static IActivity Watching(string status)
+		=> new Game(status, ActivityType.Watching);
 
-	private static IActivity Playing(string status) {
-		return new Game(status, ActivityType.Playing);
-	}
+	private static IActivity Playing(string status)
+		=> new Game(status, ActivityType.Playing);
 
 	public static IActivity? GetActivity(this Phase phase, Context context)
 		=> phase switch {

@@ -5,7 +5,8 @@ using Structs;
 
 namespace Commands;
 
-public class Handlers {
+public class Handlers 
+{
 
 	public static MessageComponent GetProgressionButtons(bool enabled)
 		=> new ComponentBuilder()
@@ -21,29 +22,41 @@ public class Handlers {
 				.WithDisabled(!enabled))
 			.Build();
 
-	private static string GetProgressionMessage(Phase nextPhase) {
+	private static string GetProgressionMessage(Phase nextPhase) 
+	{
 		var message = $"The convention will progress to the **{nextPhase.GetName()}** phase.";
 		var warning = nextPhase.GetAdditionalWarning();
-		if (warning is not null) {
+		if (warning is not null) 
+		{
 			message += $"\nAdditionally, {warning}";
 		}
 		return message + "\n\nAre you sure about this? **You cannot undo this action!**";
 	}
 
-	public static async Task HandleAdmin(SocketSlashCommand command, Context context) {
+	public static async Task HandleAdmin(SocketSlashCommand command, Context context) 
+	{
 		var sub = command.Data.Options.First();
 
-		if (sub.Name == Commands.PROGRESS) {
-			if (context.Properties.Phase.IsFinal()) {
-				await command.RespondAsync("The convention is already in the final phase!", ephemeral: true);
-				return;
-			}
-			var message = GetProgressionMessage(context.Properties.Phase.GetNext());
-			await command.RespondAsync(message, components: GetProgressionButtons(true), ephemeral: true);
+		switch (sub.Name) 
+		{
+			case Commands.PROGRESS:
+				if (context.Properties.Phase.IsFinal()) 
+				{
+					await command.RespondAsync("The convention is already in the final phase!", ephemeral: true);
+					return;
+				}
+				var message = GetProgressionMessage(context.Properties.Phase.GetNext());
+				await command.RespondAsync(message, components: GetProgressionButtons(true), ephemeral: true);
+				break;
+			case Commands.MODAL:
+				var modalId = (string) sub.Options.First().Value;
+				await context.Modals[modalId].Display(command, ModalPurpose.Testing);
+				break;
 		}
 	}
 
-	public static async Task HandleProgress(SocketMessageComponent component, Context context) {
+	public static async Task HandleProgress(SocketMessageComponent component, Context context) 
+	{
 		string result = component.Data.CustomId.Split("progress_")[1];
 		bool progress = result == "yes";
 

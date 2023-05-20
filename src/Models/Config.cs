@@ -1,17 +1,16 @@
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Models;
 
-public class Config {
+public record Config(string ConName, ulong GuildId) 
+{
 	
-	public const string PATH = "config.json";
+	public const string PATH = "resources/config.json";
 
-	public string ConName { get; set; }
-	public ulong GuildId { get; set; }
-
-	public static Config Read() {
+	public static Config Read() 
+	{
 		string json = File.ReadAllText(PATH);
-		var value = JsonSerializer.Deserialize<Config>(json);
+		var value = JsonConvert.DeserializeObject<Config>(json);
 		if (value is null) {
 			throw new NullReferenceException("Config cannot be null");
 		}

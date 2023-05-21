@@ -11,9 +11,10 @@ Task Log(LogMessage message) {
 var client = new DiscordSocketClient();
 var config = Config.Read();
 var properties = Properties.Read();
-var modals = new Modals();
 
-var context = new Context(client, config, properties, modals);
+Modals.Init();
+
+var context = new Context(client, config, properties);
 
 client.Log += Log;
 
@@ -26,6 +27,7 @@ client.Ready += async () =>
 client.SlashCommandExecuted += command => Tasks.OnCommand(command, context);
 client.ButtonExecuted += component => Tasks.OnButton(component, context);
 client.ModalSubmitted += modal => Tasks.OnModal(modal, context);
+client.SelectMenuExecuted += menu => Tasks.OnSelectMenu(menu, context);
 
 var token = Environment.GetEnvironmentVariable("AUTOCON_TOKEN");
 

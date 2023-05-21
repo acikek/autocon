@@ -5,7 +5,7 @@ namespace Models;
 public record Config(string ConName, ulong GuildId) 
 {
 	
-	public const string PATH = "resources/config.json";
+	public const string PATH = "config.json";
 
 	public static Config Read() 
 	{

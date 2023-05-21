@@ -1,3 +1,4 @@
+using Commands.Handlers;
 using Discord.Net;
 using Discord.WebSocket;
 using Models;
@@ -14,7 +15,7 @@ public class Tasks
 
 		try
 		{
-			await guild.CreateApplicationCommandAsync(Commands.GetAdminBuilder(context).Build());
+			await guild.CreateApplicationCommandAsync(Admin.GetCommand(context).Build());
 		}
 		catch (HttpException exception)
 		{
@@ -27,17 +28,17 @@ public class Tasks
 	{
 		switch (command.Data.Name) 
 		{
-			case Commands.ADMIN: 
-				await Handlers.HandleAdmin(command, context);
+			case Admin.NAME: 
+				await Admin.Handle(command, context);
 				break;
 		}
 	}
 
 	public static async Task OnButton(SocketMessageComponent component, Context context) 
 	{
-		if (component.Data.CustomId.StartsWith("progress")) 
+		if (component.Data.CustomId.StartsWith(Admin.BUTTON_PROGRESS)) 
 		{
-			await Handlers.HandleProgress(component, context);
+			await Admin.HandleProgress(component, context);
 		}
 	}
 
@@ -46,9 +47,23 @@ public class Tasks
 		var (purpose, id) = ModalPurposes.Parse(modal.Data.CustomId);
 		switch (purpose)
 		{
+			case ModalPurpose.Form:
 			case ModalPurpose.Testing:
-				var builder = context.Modals[id].RespondEmbed(modal);
+				var builder = Modals.FromId(id).GenerateResponseEmbed(modal);
 				await modal.RespondAsync(embed: builder.Build());
+				break;
+			//case ModalPurpose.Form:
+			//	await General.HandlePostForm(modal, id, context);
+			//	break;
+		}
+	}
+
+	public static async Task OnSelectMenu(SocketMessageComponent component, Context context)
+	{
+		switch (component.Data.CustomId)
+		{
+			case Admin.SELECT_FORM_CHOICE:
+				await General.HandleFormSelection(component, context);
 				break;
 		}
 	}

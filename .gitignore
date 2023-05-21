@@ -5,4 +5,5 @@ data
 
 Migrations
 
-resources
+modals
+config.json

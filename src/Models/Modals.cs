@@ -8,7 +8,8 @@ namespace Models;
 
 public enum ModalPurpose
 {
-	Testing
+	Testing,
+	Form
 }
 
 public static class ModalPurposes
@@ -37,6 +38,8 @@ public enum SectionType
 
 public record Section(string Title, SectionType Type, string Id, string Placeholder, bool Required)
 {
+	public const int MAX_SIZE = 200;
+
 	public TextInputStyle GetInputStyle()
 		=> this.Type == SectionType.Short 
 			? TextInputStyle.Short 
@@ -49,15 +52,13 @@ public record Section(string Title, SectionType Type, string Id, string Placehol
 			.WithCustomId(this.Id)
 			.WithPlaceholder(this.Placeholder)
 			.WithRequired(this.Required)
-			.WithMaxLength(200);
+			.WithMaxLength(MAX_SIZE);
 }
 
-public record ModalData(string Title, List<Section> Sections);
+public record ModalData(string Title, uint Color, List<Section> Sections);
 
-public record GeneratedModal(string Title, string Id, List<Section> Sections)
+public record GeneratedModal(string Title, string Id, uint Color, List<Section> Sections)
 {
-	public const int EMBED_COLOR = 0xFF0099;
-
 	public Modal Generate(ModalPurpose purpose)
 	{
 		var builder = new ModalBuilder()
@@ -73,15 +74,16 @@ public record GeneratedModal(string Title, string Id, List<Section> Sections)
 	public async Task Display(IDiscordInteraction interaction, ModalPurpose purpose)
 		=> await interaction.RespondWithModalAsync(Generate(purpose));
 
-	public EmbedBuilder RespondEmbed(SocketModal modal)
+	public EmbedBuilder GenerateResponseEmbed(SocketModal modal)
 	{
 		var builder = new EmbedBuilder()
 			.WithTitle($"New {this.Title} Response")
-			.WithColor(EMBED_COLOR)
+			.WithColor(this.Color)
 			.WithAuthor(new EmbedAuthorBuilder()
 				.WithName($"@{modal.User.Username}")
 				.WithIconUrl(modal.User.GetAvatarUrl()))
 			.WithCurrentTimestamp();
+
 		for (int i = 0; i < this.Sections.Count(); i++)
 		{
 			var section = this.Sections[i];
@@ -89,8 +91,9 @@ public record GeneratedModal(string Title, string Id, List<Section> Sections)
 			string display = String.IsNullOrWhiteSpace(value)
 				? "*No response*"
 				: value;
-			builder.AddField(section.Title, display, true);
+			builder.AddField(section.Title, display, inline: false);
 		}
+
 		return builder;
 	}
 
@@ -101,30 +104,32 @@ public record GeneratedModal(string Title, string Id, List<Section> Sections)
 		if (value is null) {
 			throw new NullReferenceException($"Modal '{id}' cannot be null");
 		}
-		return new GeneratedModal(value.Title, id, value.Sections);
+		return new GeneratedModal(value.Title, id, value.Color, value.Sections);
 	}
 }
 
 public class Modals 
 {
 
-	public const string LOCATION = "resources/modals";
+	public const string LOCATION = "modals";
 
-	public Dictionary<string, GeneratedModal> Map { get; } = new Dictionary<string, GeneratedModal>();
+	public static readonly List<GeneratedModal> ALL = new List<GeneratedModal>();
 
-	public Modals()
+	public static readonly GeneratedModal BOOTH = Create("booth");
+	public static readonly GeneratedModal EVENT = Create("event");
+
+	public static GeneratedModal Create(string id)
 	{
-		foreach (var file in Directory.GetFiles(LOCATION))
-		{
-			string id = Path.GetFileNameWithoutExtension(file);
-			Map.Add(id, GeneratedModal.Read(file, id));
-		}
+		var value = GeneratedModal.Read($"{LOCATION}/{id}.json", id);
+		ALL.Add(value);
+		return value;
 	}
-	
-	public GeneratedModal this[string id]
-	{
-		get { return Map[id]; }
-	}
+
+	public static GeneratedModal FromId(string id)
+		=> ALL.First(modal => modal.Id == id);
+
+	public static void Init()
+	{}
 }
 
 public static class SlashCommandOptionBuilderExtensions 
@@ -132,9 +137,9 @@ public static class SlashCommandOptionBuilderExtensions
 
 	public static SlashCommandOptionBuilder AddModalChoices(this SlashCommandOptionBuilder builder, Context context) 
 	{
-		foreach (var (id, modal) in context.Modals.Map)
+		foreach (var modal in Modals.ALL)
 		{
-			builder.AddChoice(modal.Title, id);
+			builder.AddChoice(modal.Title, modal.Id);
 		}
 		return builder;
 	}

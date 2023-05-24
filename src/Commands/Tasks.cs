@@ -1,7 +1,6 @@
 using Commands.Handlers;
 using Discord.Net;
 using Discord.WebSocket;
-using Models;
 using Newtonsoft.Json;
 
 namespace Commands;
@@ -9,7 +8,7 @@ namespace Commands;
 public class Tasks 
 {
 
-	public static async Task OnReady(Context context) 
+	public static async Task OnReady(BotContext context) 
 	{
 		var guild = context.Client.GetGuild(context.Config.GuildId);
 
@@ -24,7 +23,7 @@ public class Tasks
 		}
 	}
 
-	public static async Task OnCommand(SocketSlashCommand command, Context context) 
+	public static async Task OnCommand(SocketSlashCommand command, BotContext context) 
 	{
 		switch (command.Data.Name) 
 		{
@@ -34,7 +33,7 @@ public class Tasks
 		}
 	}
 
-	public static async Task OnButton(SocketMessageComponent component, Context context) 
+	public static async Task OnButton(SocketMessageComponent component, BotContext context) 
 	{
 		if (component.Data.CustomId.StartsWith(Admin.BUTTON_PROGRESS)) 
 		{
@@ -42,7 +41,7 @@ public class Tasks
 		}
 	}
 
-	public static async Task OnModal(SocketModal modal, Context context)
+	public static async Task OnModal(SocketModal modal, BotContext context)
 	{
 		/*var (purpose, id) = ModalPurposes.Parse(modal.Data.CustomId);
 		switch (purpose)
@@ -58,7 +57,7 @@ public class Tasks
 		//}
 	}
 
-	public static async Task OnSelectMenu(SocketMessageComponent component, Context context)
+	public static async Task OnSelectMenu(SocketMessageComponent component, BotContext context)
 	{
 		switch (component.Data.CustomId)
 		{

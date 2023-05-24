@@ -52,7 +52,8 @@ public record FormSelection(string Title, List<SelectionChoice> Choices) : FormQ
 
 		if (rawData is SocketMessageComponentData data)
 		{
-			result.Add(new FormSectionResponse(this.Title, data.Values.First()));
+			var choice = this.Choices.Find(x => x.Id == data.Values.First());
+			result.Add(new FormSectionResponse(this.Title, choice?.Title ?? "Unknown"));
 		}
 
 		return result;

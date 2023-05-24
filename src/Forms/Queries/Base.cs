@@ -1,3 +1,4 @@
+using Database;
 using Discord;
 
 namespace Forms;
@@ -44,12 +45,12 @@ public abstract record FormQuery
 
 	/// <summary>
 	///	Parses the component ID into the form ID and the query index.
-	/// Does not perform validation on the component ID. Use <see cref="IsFormQuery"/> for validation.
+	/// Does not perform validation on the component ID. Use <see cref="FormQuery.IsFormQuery(string)"/> for validation.
 	/// </summary>
-	public static (string, int) Parse(string componentId)
+	public static (string, uint) Parse(string componentId)
 	{
-		var segments = componentId.Split("_", 2);
-		return (segments[1], int.Parse(segments[2]));
+		var segments = componentId.Split("_", 3);
+		return (segments[1], uint.Parse(segments[2]));
 	}
 }
 
@@ -72,4 +73,10 @@ public record FormSectionResponse(string Title, string Value)
 		=> String.IsNullOrWhiteSpace(value)
 			? new FormSectionResponse(title, value)
 			: None(title);
+
+	public static explicit operator FormResponseModel(FormSectionResponse response)
+		=> new FormResponseModel {
+			Title = response.Title,
+			Value = response.Value
+		};
 }

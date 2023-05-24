@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Discord;
 using Discord.WebSocket;
 using Newtonsoft.Json.Converters;
+using SQLitePCL;
 
 namespace Forms;
 
@@ -83,12 +84,15 @@ public record FormModal(string? Title, List<ModalSection> Sections) : FormQuery
 	{
 		var result = new List<FormSectionResponse>();
 
+		Console.WriteLine(rawData is SocketModalData);
+
 		if (rawData is SocketModalData data)
 		{
 			for (int i = 0; i < this.Sections.Count(); i++)
 			{
 				var section = this.Sections[i];
 				string value = data.Components.ElementAt(i).Value;
+				Console.WriteLine(FormSectionResponse.FromPossiblyEmpty(section.Title, value));
 				result.Add(FormSectionResponse.FromPossiblyEmpty(section.Title, value));
 			}
 		}

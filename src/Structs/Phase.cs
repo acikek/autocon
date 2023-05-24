@@ -22,7 +22,7 @@ public static class PhaseExtensions {
 	private static IActivity Playing(string status)
 		=> new Game(status, ActivityType.Playing);
 
-	public static IActivity? GetActivity(this Phase phase, Context context)
+	public static IActivity? GetActivity(this Phase phase, BotContext context)
 		=> phase switch {
 			Phase.Signups => Watching("for signups"),
 			Phase.Test => Playing("and testing"),

@@ -29,7 +29,7 @@ public static class General
 					.WithEmote(new Emoji("\uD83D\uDC77"))))
 			.Build();
 
-	public static async Task HandleFormSelection(SocketMessageComponent component, Context context)
+	public static async Task HandleFormSelection(SocketMessageComponent component, BotContext context)
 	{
 		switch (component.Data.Values.First())
 		{
@@ -40,7 +40,7 @@ public static class General
 		//await Modals.FromId(component.Data.Values.First()).Display(component, ModalPurpose.Form);
 	}
 
-	public static async Task HandlePostForm(SocketModal modal, string id, Context context)
+	public static async Task HandlePostForm(SocketModal modal, string id, BotContext context)
 	{
 		switch (id)
 		{

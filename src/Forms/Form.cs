@@ -1,3 +1,4 @@
+using Database;
 using Discord;
 using Newtonsoft.Json;
 
@@ -18,8 +19,40 @@ public record Form(string Title, string Id, uint Color, List<FormQuery> Queries)
 	public QueryContext GetContext(uint index)
 		=> new QueryContext(this, index);
 
+	public bool HasQuery(uint index) => index < Queries.Count();
+
 	public async Task DisplayQuery(IDiscordInteraction interaction, uint index)
 		=> await Queries.ElementAt((int) index).Display(interaction, GetContext(index));
+
+	public List<FormSectionResponse> GetQueryResponseData(IDiscordInteraction interaction, uint index)
+		=> Queries.ElementAt((int) index).GetResponseData(interaction.Data, GetContext(index));
+
+	public async Task Begin(IUser user) {
+		using (var db = new AutoConDatabase())
+		{
+			await db.Applications.AddAsync(ApplicationModel.Empty(user.Id, this.Id));
+			await db.SaveChangesAsync();
+		}
+	}
+
+	public EmbedBuilder GenerateResponseBuilder(IDiscordInteraction interaction, ICollection<FormSectionResponse> responses)
+	{
+		var builder = new EmbedBuilder()
+			.WithTitle($"New {this.Title} Response")
+			.WithColor(this.Color)
+			.WithAuthor(new EmbedAuthorBuilder()
+				.WithName($"@{interaction.User.Username}")
+				.WithIconUrl(interaction.User.GetAvatarUrl()))
+			.WithCurrentTimestamp();
+
+		for (int i = 0; i < responses.Count(); i++)
+		{
+			var response = responses.ElementAt(i);
+			builder.AddField(response.Title, response.Value, inline: false);
+		}
+
+		return builder;
+	}
 
 	public static Form Read(string path, string id) 
 	{

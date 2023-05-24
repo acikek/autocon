@@ -2,7 +2,7 @@
 using Discord;
 using Discord.WebSocket;
 using Forms;
-using Models;
+using Structs;
 
 Task Log(LogMessage message) {
 	Console.WriteLine(message.ToString());
@@ -15,7 +15,7 @@ var properties = Properties.Read();
 
 FormManager.Init();
 
-var context = new Context(client, config, properties);
+var context = new BotContext(client, config, properties);
 
 client.Log += Log;
 
@@ -29,6 +29,8 @@ client.SlashCommandExecuted += command => Tasks.OnCommand(command, context);
 client.ButtonExecuted += component => Tasks.OnButton(component, context);
 client.ModalSubmitted += modal => Tasks.OnModal(modal, context);
 client.SelectMenuExecuted += menu => Tasks.OnSelectMenu(menu, context);
+
+FormInteractions.Register(context);
 
 var token = Environment.GetEnvironmentVariable("AUTOCON_TOKEN");
 

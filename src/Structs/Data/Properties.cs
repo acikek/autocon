@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Structs;
 
-namespace Models;
+namespace Structs;
 
 public class Properties 
 {
@@ -10,10 +10,10 @@ public class Properties
 
 	public Phase Phase { get; set; }
 
-	public async Task UpdateActivity(Context context) 
+	public async Task UpdateActivity(BotContext context) 
 		=> await context.Client.SetActivityAsync(this.Phase.GetActivity(context));
 
-	public async Task ProgressPhase(Context context) 
+	public async Task ProgressPhase(BotContext context) 
 	{
 		this.Phase += 1;
 		await UpdateActivity(context);

@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Models;
+namespace Structs;
 
 public record Config(string ConName, ulong GuildId) 
 {

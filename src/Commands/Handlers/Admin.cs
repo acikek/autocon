@@ -1,7 +1,6 @@
 using Discord;
 using Discord.WebSocket;
 using Forms;
-using Models;
 using Structs;
 
 namespace Commands.Handlers;
@@ -18,7 +17,7 @@ public static class Admin
 	public const string BUTTON_PROGRESS_ACCEPT = "progress_yes";
 	public const string BUTTON_PROGRESS_DENY = "progress_no";
 
-	public static SlashCommandBuilder GetCommand(Context context)
+	public static SlashCommandBuilder GetCommand(BotContext context)
 		=> new SlashCommandBuilder()
 			.WithName(NAME)
 			.WithDescription("Admin control panel")
@@ -56,7 +55,7 @@ public static class Admin
 				.WithDisabled(!enabled))
 			.Build();
 
-	private static MessageComponent GetSubmissionsSelectMenu(Context context)
+	private static MessageComponent GetSubmissionsSelectMenu(BotContext context)
 		=> new ComponentBuilder()
 			.WithSelectMenu(new SelectMenuBuilder()
 				.WithCustomId(SELECT_FORM_CHOICE)
@@ -84,7 +83,7 @@ public static class Admin
 		return message + "\n\nAre you sure about this? **You cannot undo this action!**";
 	}
 
-	public static async Task Handle(SocketSlashCommand command, Context context) 
+	public static async Task Handle(SocketSlashCommand command, BotContext context) 
 	{
 		var sub = command.Data.Options.First();
 
@@ -101,7 +100,9 @@ public static class Admin
 				break;
 			case SUB_FORM:
 				var formId = (string) sub.Options.First().Value;
-				await FormManager.FromId(formId).DisplayQuery(command, 0);
+				var form = FormManager.ALL[formId];
+				await form.Begin(command.User);
+				await form.DisplayQuery(command, 0);
 				break;
 			case SUB_SUBMISSIONS:
 				await command.RespondAsync(components: GetSubmissionsSelectMenu(context));
@@ -109,7 +110,7 @@ public static class Admin
 		}
 	}
 
-	public static async Task HandleProgress(SocketMessageComponent component, Context context) 
+	public static async Task HandleProgress(SocketMessageComponent component, BotContext context) 
 	{
 		bool confirm = component.Data.CustomId == BUTTON_PROGRESS_ACCEPT;
 

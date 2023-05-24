@@ -44,18 +44,18 @@ public class Tasks
 
 	public static async Task OnModal(SocketModal modal, Context context)
 	{
-		var (purpose, id) = ModalPurposes.Parse(modal.Data.CustomId);
+		/*var (purpose, id) = ModalPurposes.Parse(modal.Data.CustomId);
 		switch (purpose)
 		{
 			case ModalPurpose.Form:
 			case ModalPurpose.Testing:
 				var builder = Modals.FromId(id).GenerateResponseEmbed(modal);
 				await modal.RespondAsync(embed: builder.Build());
-				break;
+				break;*/
 			//case ModalPurpose.Form:
 			//	await General.HandlePostForm(modal, id, context);
 			//	break;
-		}
+		//}
 	}
 
 	public static async Task OnSelectMenu(SocketMessageComponent component, Context context)

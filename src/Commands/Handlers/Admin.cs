@@ -1,5 +1,6 @@
 using Discord;
 using Discord.WebSocket;
+using Forms;
 using Models;
 using Structs;
 
@@ -10,8 +11,8 @@ public static class Admin
 
 	public const string NAME = "admin";
 	public const string SUB_PROGRESS = "progress";
-	public const string SUB_MODAL = "modal";
 	public const string SUB_FORM = "form";
+	public const string SUB_SUBMISSIONS = "submissions";
 	public const string SELECT_FORM_CHOICE = "form_choice";
 	public const string BUTTON_PROGRESS = "progress";
 	public const string BUTTON_PROGRESS_ACCEPT = "progress_yes";
@@ -27,17 +28,17 @@ public static class Admin
 				.WithDescription("Progresses the current con phase")
 				.WithType(ApplicationCommandOptionType.SubCommand))
 			.AddOption(new SlashCommandOptionBuilder()
-				.WithName(Admin.SUB_MODAL)
-				.WithDescription("Displays a modal and embeds its results")
+				.WithName(Admin.SUB_FORM)
+				.WithDescription("Displays a form and embeds its results")
 				.WithType(ApplicationCommandOptionType.SubCommand)
 				.AddOption(new SlashCommandOptionBuilder()
 					.WithName("id")
-					.WithDescription("The ID of the modal")
+					.WithDescription("The ID of the form")
 					.WithType(ApplicationCommandOptionType.String)
 					.WithRequired(true)
-					.AddModalChoices(context)))
+					.AddFormChoices(context)))
 			.AddOption(new SlashCommandOptionBuilder()
-				.WithName(Admin.SUB_FORM)
+				.WithName(Admin.SUB_SUBMISSIONS)
 				.WithDescription("Bring up the submissions menu")
 				.WithType(ApplicationCommandOptionType.SubCommand));
 
@@ -55,7 +56,7 @@ public static class Admin
 				.WithDisabled(!enabled))
 			.Build();
 
-	private static MessageComponent GetFormSelectMenu(Context context)
+	private static MessageComponent GetSubmissionsSelectMenu(Context context)
 		=> new ComponentBuilder()
 			.WithSelectMenu(new SelectMenuBuilder()
 				.WithCustomId(SELECT_FORM_CHOICE)
@@ -98,12 +99,12 @@ public static class Admin
 				var message = GetProgressionMessage(context.Properties.Phase.GetNext());
 				await command.RespondAsync(message, components: GetProgressionButtons(true), ephemeral: true);
 				break;
-			case SUB_MODAL:
-				var modalId = (string) sub.Options.First().Value;
-				await Modals.FromId(modalId).Display(command, ModalPurpose.Testing);
-				break;
 			case SUB_FORM:
-				await command.RespondAsync(components: GetFormSelectMenu(context));
+				var formId = (string) sub.Options.First().Value;
+				await FormManager.FromId(formId).DisplayQuery(command, 0);
+				break;
+			case SUB_SUBMISSIONS:
+				await command.RespondAsync(components: GetSubmissionsSelectMenu(context));
 				break;
 		}
 	}

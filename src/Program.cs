@@ -1,6 +1,7 @@
 ﻿using Commands;
 using Discord;
 using Discord.WebSocket;
+using Forms;
 using Models;
 
 Task Log(LogMessage message) {
@@ -12,7 +13,7 @@ var client = new DiscordSocketClient();
 var config = Config.Read();
 var properties = Properties.Read();
 
-Modals.Init();
+FormManager.Init();
 
 var context = new Context(client, config, properties);
 

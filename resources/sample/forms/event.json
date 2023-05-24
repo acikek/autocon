@@ -1,0 +1,34 @@
+{
+	"Title": "",
+	"Color": 0,
+	"Queries": [
+		{
+			"Type": "selection",
+			"Title": "",
+			"Prompt": "",
+			"Index": 0,
+			"Choices": [
+				{
+					"Title": "",
+					"Description": "",
+					"Id": "",
+					"Emoji": ""
+				}
+			]
+		},
+		{
+			"Type": "modal",
+			"Title": "",
+			"Index": 1,
+			"Sections": [
+				{
+					"Title": "",
+					"Type": "short",
+					"Placeholder": "",
+					"Id": "",
+					"Required": true
+				}
+			]
+		}
+	]
+}

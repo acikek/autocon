@@ -101,8 +101,8 @@ public static class Admin
 			case SUB_FORM:
 				var formId = (string) sub.Options.First().Value;
 				var form = FormManager.ALL[formId];
-				await form.StartApplicationIfNotPresent(command.User);
-				await form.DisplayQuery(command, 0);
+				var currentQuery = await form.StartApplicationIfNotPresent(command.User);
+				await form.DisplayQuery(command, currentQuery);
 				break;
 			case SUB_SUBMISSIONS:
 				await command.RespondAsync(components: GetSubmissionsSelectMenu(context));

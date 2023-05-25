@@ -19,16 +19,17 @@ public static class FormInteractions
 			var app = formData?.FindResumable(interaction.User.Id);
 
 			if (app is not null)
-			{
-				var responses = form.GetQueryResponseData(data, index)
-					.Select(x => new FormResponseModel { Title = x.Title, Value = x.Value })
-					.AsEnumerable();
+			{	
+				var responseCount = app.Responses.Count();
+				var responses = form.GetQueryResponseData(data, index);
+				var responseData = app.GetResponseModels(responses);
 
 				app.CurrentQuery++;
-				app.Responses?.AddRange(responses);
+				app.Responses.AddRange(responseData);
 				
 				if (!next)
 				{
+					app.Responses.Sort((x, y) => x.Index.CompareTo(y.Index));
 					var allResponses = app.Responses.Select(x => x.Revert()).ToList();
 					var embed = form.GenerateResponseBuilder(interaction, allResponses);
 					await interaction.RespondAsync(embed: embed.Build());

@@ -73,10 +73,4 @@ public record FormSectionResponse(string Title, string Value)
 		=> String.IsNullOrWhiteSpace(value)
 			? None(title)
 			: new FormSectionResponse(title, value);
-
-	public static explicit operator FormResponseModel(FormSectionResponse response)
-		=> new FormResponseModel {
-			Title = response.Title,
-			Value = response.Value
-		};
 }

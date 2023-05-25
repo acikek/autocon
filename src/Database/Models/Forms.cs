@@ -12,11 +12,10 @@ public class FormResponseModel
 	public Guid? ResponseId { get; set; }
 	public string Title { get; set; }
 	public string Value { get; set; }
+	public int Index { get; set; }
 
 	// Foreign Keys
 	public Guid AppId { get; set; } // to ApplicationModel
-	public string FormId { get; set; } // to FormTypeModel
-	public ulong UserId { get; set; } // to UserModel
 
 	public FormSectionResponse Revert()
 		=> new FormSectionResponse(this.Title, this.Value);
@@ -45,6 +44,18 @@ public class ApplicationModel
 			InProgress = true,
 			Accepted = false
 		};
+
+	public IEnumerable<FormResponseModel> GetResponseModels(List<FormSectionResponse> responses)
+	{
+		int count = this.Responses.Count();
+		return responses
+			.AsEnumerable()
+			.Select((x, i) => new FormResponseModel {
+				Title = x.Title,
+				Value = x.Value,
+				Index = count + i
+			});
+	}
 }
 
 public class FormTypeModel

@@ -28,7 +28,7 @@ public record Form(string Title, string Id, uint Color, List<FormQuery> Queries)
 	public List<FormSectionResponse> GetQueryResponseData(IDiscordInteractionData data, uint index)
 		=> Queries.ElementAt((int) index).GetResponseData(data, GetContext(index));
 
-	public async Task StartApplicationIfNotPresent(IUser user) {
+	public async Task<uint> StartApplicationIfNotPresent(IUser user) {
 		using (var db = new AutoConDatabase())
 		{
 			await db.AddFormIfNotPresent(this.Id);
@@ -38,10 +38,12 @@ public record Form(string Title, string Id, uint Color, List<FormQuery> Queries)
 			var existing = formData?.FindResumable(user.Id);
 
 			if (existing is not null)
-				return;
+				return existing.CurrentQuery;
 
 			formData?.Applications.Add(ApplicationModel.New(this, user));
 			await db.SaveChangesAsync();
+
+			return 0;
 		}
 	}
 

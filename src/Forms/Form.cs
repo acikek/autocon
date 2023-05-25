@@ -1,5 +1,6 @@
 using Database;
 using Discord;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace Forms;
@@ -24,13 +25,22 @@ public record Form(string Title, string Id, uint Color, List<FormQuery> Queries)
 	public async Task DisplayQuery(IDiscordInteraction interaction, uint index)
 		=> await Queries.ElementAt((int) index).Display(interaction, GetContext(index));
 
-	public List<FormSectionResponse> GetQueryResponseData(IDiscordInteraction interaction, uint index)
-		=> Queries.ElementAt((int) index).GetResponseData(interaction.Data, GetContext(index));
+	public List<FormSectionResponse> GetQueryResponseData(IDiscordInteractionData data, uint index)
+		=> Queries.ElementAt((int) index).GetResponseData(data, GetContext(index));
 
-	public async Task Begin(IUser user) {
+	public async Task StartApplicationIfNotPresent(IUser user) {
 		using (var db = new AutoConDatabase())
 		{
-			await db.Applications.AddAsync(ApplicationModel.Empty(user.Id, this.Id));
+			await db.AddFormIfNotPresent(this.Id);
+			await db.AddUserIfNotPresent(user.Id);
+
+			var formData = db.FindForm(this.Id);
+			var existing = formData?.FindResumable(user.Id);
+
+			if (existing is not null)
+				return;
+
+			formData?.Applications.Add(ApplicationModel.New(this, user));
 			await db.SaveChangesAsync();
 		}
 	}

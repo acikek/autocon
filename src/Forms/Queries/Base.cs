@@ -71,8 +71,8 @@ public record FormSectionResponse(string Title, string Value)
 	/// </returns>
 	public static FormSectionResponse FromPossiblyEmpty(string title, string value)
 		=> String.IsNullOrWhiteSpace(value)
-			? new FormSectionResponse(title, value)
-			: None(title);
+			? None(title)
+			: new FormSectionResponse(title, value);
 
 	public static explicit operator FormResponseModel(FormSectionResponse response)
 		=> new FormResponseModel {

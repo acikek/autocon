@@ -5,12 +5,15 @@ using Forms;
 
 namespace Database;
 
+using FormResponseData = IEnumerable<FormResponseModel>;
+
 public class FormResponseModel
 {
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 	public Guid? ResponseId { get; set; }
 	public string Title { get; set; }
+	public string OptionId { get; set; }
 	public string Value { get; set; }
 	public int Index { get; set; }
 
@@ -18,7 +21,7 @@ public class FormResponseModel
 	public Guid AppId { get; set; } // to ApplicationModel
 
 	public FormSectionResponse Revert()
-		=> new FormSectionResponse(this.Title, this.Value);
+		=> new FormSectionResponse(this.Title, this.OptionId, this.Value);
 }
 
 public class ApplicationModel
@@ -45,7 +48,7 @@ public class ApplicationModel
 			Accepted = false
 		};
 
-	public IEnumerable<FormResponseModel> GetResponseModels(List<FormSectionResponse> responses)
+	public FormResponseData GetResponseData(List<FormSectionResponse> responses)
 	{
 		int count = this.Responses.Count();
 		return responses
@@ -53,6 +56,7 @@ public class ApplicationModel
 			.Select((x, i) => new FormResponseModel {
 				Title = x.Title,
 				Value = x.Value,
+				OptionId = x.Id,
 				Index = count + i
 			});
 	}

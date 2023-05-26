@@ -6,25 +6,31 @@ namespace Forms;
 /// <summary>
 ///	A deserializable selection menu choice that generates a <see cref="SelectMenuOptionBuilder"/>.
 /// </summary>
-public record SelectionChoice(string Title, string Description, string Id, string Emoji)
+public record SelectionChoice(string Title, string? Description, string Id, string Emoji)
 {
 
 	/// <summary>
 	/// Generates a selection menu builder based on the provided data.
 	/// </summary>
 	public SelectMenuOptionBuilder GenerateBuilder()
-		=> new SelectMenuOptionBuilder()
+	{
+		var builder = new SelectMenuOptionBuilder()
 			.WithLabel(this.Title)
-			.WithDescription(this.Description)
 			.WithValue(this.Id)
 			.WithEmote(new Emoji(this.Emoji));
+		if (this.Description is not null)
+		{
+			builder.WithDescription(this.Description);
+		}
+		return builder;
+	}
 }
 
 /// <summary>
 /// A form selection menu containing a list of <see cref="SelectionChoice"/>s
 /// attached to a prompt and a response title.
 /// </summary>
-public record FormSelection(string Title, List<SelectionChoice> Choices) : FormQuery
+public record FormSelection(string Title, uint? Merge, List<SelectionChoice> Choices, List<string> Conditions) : FormQuery(Merge, Conditions)
 {
 	/// <inheritdoc/>
 	public override async Task Display(IDiscordInteraction interaction, QueryContext context)
@@ -42,7 +48,20 @@ public record FormSelection(string Title, List<SelectionChoice> Choices) : FormQ
 			.WithSelectMenu(builder)
 			.Build();
 
-		await interaction.RespondAsync(components: components);
+		await interaction.RespondAsync(components: components, ephemeral: true);
+	}
+
+	/// <inheritdoc/>
+	public override void MergeWith(FormQuery other)
+	{
+		if (other is FormSelection selection)
+		{
+			this.Choices.AddRange(selection.Choices);
+		}
+		else
+		{
+			throw new InvalidOperationException("Merge type must be 'selection'");
+		}
 	}
 
 	/// <inheritdoc/>
@@ -53,7 +72,7 @@ public record FormSelection(string Title, List<SelectionChoice> Choices) : FormQ
 		if (rawData is SocketMessageComponentData data)
 		{
 			var choice = this.Choices.Find(x => x.Id == data.Values.First());
-			result.Add(new FormSectionResponse(this.Title, choice?.Title ?? "Unknown"));
+			result.Add(new FormSectionResponse(this.Title, choice.Id, choice.Title));
 		}
 
 		return result;

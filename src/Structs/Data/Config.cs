@@ -2,7 +2,10 @@ using Newtonsoft.Json;
 
 namespace Structs;
 
-public record Config(string ConName, ulong GuildId) 
+public record Config(
+	string ConName, 
+	ulong GuildId,
+	ulong FormSubmissionChannelId) 
 {
 	
 	public const string PATH = "resources/config.json";

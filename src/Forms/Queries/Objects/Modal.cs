@@ -62,7 +62,7 @@ public record ModalSection(string Title, ModalSectionType Type, string Id, strin
 /// <summary>
 /// A form modal, or simply a list of <see cref="ModalSection"/>s attached to a title.
 /// </summary>
-public record FormModal(string? Title, List<ModalSection> Sections) : FormQuery
+public record FormModal(string? Title, uint? Merge, List<ModalSection> Sections, List<string> Conditions) : FormQuery(Merge, Conditions)
 {
 	/// <inheritdoc/>
 	public override async Task Display(IDiscordInteraction interaction, QueryContext context)
@@ -80,6 +80,19 @@ public record FormModal(string? Title, List<ModalSection> Sections) : FormQuery
 	}
 
 	/// <inheritdoc/>
+	public override void MergeWith(FormQuery other)
+	{
+		if (other is FormModal modal)
+		{
+			this.Sections.AddRange(modal.Sections);
+		}
+		else
+		{
+			throw new InvalidOperationException("Merge type must be a 'modal'");
+		}
+	}
+
+	/// <inheritdoc/>
 	public override List<FormSectionResponse> GetResponseData(IDiscordInteractionData rawData, QueryContext context)
 	{
 		var result = new List<FormSectionResponse>();
@@ -90,7 +103,7 @@ public record FormModal(string? Title, List<ModalSection> Sections) : FormQuery
 			{
 				var section = this.Sections[i];
 				string value = data.Components.ElementAt(i).Value;
-				result.Add(FormSectionResponse.FromPossiblyEmpty(section.Title, value));
+				result.Add(FormSectionResponse.FromPossiblyEmpty(section.Title, section.Id, value));
 			}
 		}
 

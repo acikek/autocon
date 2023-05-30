@@ -1,0 +1,92 @@
+{
+	"Title": "Booth",
+	"Description": "Submit a booth to show off a project",
+	"Color": 16711833,
+	"Emoji": "\uD83C\uDFE8",
+	"Representative": "proj_name",
+	"Queries": [
+		{
+			"Title": "Booth Submission",
+			"Type": "modal",
+			"Sections": [
+				{
+					"Type": "short",
+					"Id": "proj_name",
+					"Title": "Project Name",
+					"Placeholder": "Enter the project name...",
+					"Required": true
+				},
+				{
+					"Type": "long",
+					"Id": "description",
+					"Title": "Project Description",
+					"Placeholder": "Enter a short description for your project...",
+					"Required": true
+				},
+				{
+					"Type": "short",
+					"Id": "link",
+					"Title": "Project Link",
+					"Placeholder": "Enter a Modrinth, CurseForge, or source link...",
+					"Required": true
+				},
+				{
+					"Type": "long",
+					"Id": "collaborators",
+					"Title": "Project Collaborators",
+					"Placeholder": "If anyone helped you with this project, enter their names here...",
+					"Required": false
+				},
+				{
+					"Type": "long",
+					"Id": "extra",
+					"Title": "Extra Booth Info",
+					"Placeholder": "Enter any important information about your booth that you'd like us to know...",
+					"Required": false
+				}
+			]
+		},
+		{
+			"Type": "selection",
+			"Title": "Who should build this booth?",
+			"Choices": [
+				{
+					"Title": "Myself",
+					"Description": "You'll build the booth",
+					"Id": "user",
+					"Emoji": "\uD83C\uDF1F"
+				},
+				{
+					"Title": "Organizers",
+					"Description": "We'll build it for you",
+					"Id": "org",
+					"Emoji": "\uD83D\uDC77"
+				}
+			]
+		},
+		{
+			"Type": "selection",
+			"Title": "Integrate your project with Arch-Ex 2?",
+			"Choices": [
+				{
+					"Title": "No",
+					"Description": "...or my project isn't suitable",
+					"Id": "no",
+					"Emoji": "\u274C"
+				},
+				{
+					"Title": "Yes; I'll create the integration",
+					"Description": null,
+					"Id": "yes_user",
+					"Emoji": "\uD83D\uDC4D"
+				},
+				{
+					"Title": "Yes; the organizers should integrate it",
+					"Description": null,
+					"Id": "yes_org",
+					"Emoji": "\uD83D\uDCAC"
+				}
+			]
+		}
+	]
+}

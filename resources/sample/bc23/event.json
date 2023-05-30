@@ -1,0 +1,93 @@
+{
+	"Title": "Event",
+	"Description": "Submit an event for groups to participate in",
+	"Color": 16751872,
+	"Emoji": "\uD83C\uDF06",
+	"Representative": "event_name",
+	"Queries": [
+		{
+			"Type": "selection",
+			"Title": "What type of event will you host?",
+			"Choices": [
+				{
+					"Title": "Panel",
+					"Description": "Multiple speakers, no slideshow",
+					"Id": "panel",
+					"Emoji": "\uD83D\uDCE3"
+				},
+				{
+					"Title": "Keynote",
+					"Description": "A single speaker with a slideshow",
+					"Id": "keynote",
+					"Emoji": "\uD83D\uDCFA"
+				},
+				{
+					"Title": "Q&A Session",
+					"Description": "Questions will be sent beforehand",
+					"Id": "qna",
+					"Emoji": "\u2753"
+				},
+				{
+					"Title": "Other",
+					"Description": "Something else requiring a group!",
+					"Id": "event_other",
+					"Emoji": "\uD83D\uDCAD"
+				}
+			]
+		},
+		{
+			"Type": "modal",
+			"Title": "Custom Event Submission",
+			"Sections": [
+				{
+					"Type": "short",
+					"Id": "custom",
+					"Title": "Event Idea",
+					"Placeholder": "Minigame, competition, etc...",
+					"Required": true
+				}
+			],
+			"Merge": 2,
+			"Conditions": [
+				"event_other"
+			]
+		},
+		{
+			"Type": "modal",
+			"Title": "Event Submission",
+			"Sections": [
+				{
+					"Type": "short",
+					"Id": "event_name",
+					"Title": "Event Name",
+					"Placeholder": "Enter the event name...",
+					"Required": true
+				},
+				{
+					"Type": "long",
+					"Id": "description",
+					"Title": "Event Description",
+					"Placeholder": "Enter a short description for your event...",
+					"Required": true
+				},
+				{
+					"Type": "long",
+					"Id": "collaborators",
+					"Title": "Event Co-Hosts",
+					"Placeholder": "If will be hosting this event with you, enter their names here...",
+					"Required": false
+				},
+				{
+					"Type": "long",
+					"Id": "extra",
+					"Title": "Extra Booth Info",
+					"Placeholder": "Enter any important information about your event that you'd like us to know...",
+					"Required": false
+				}
+			],
+			"Conditions": [
+				"!event_other"
+			]
+		}
+	]
+}

@@ -32,6 +32,7 @@ public class ApplicationModel
 	public uint CurrentQuery { get; set; }
 	public bool InProgress { get; set; }
 	public bool Accepted { get; set; }
+	public ulong? MessageId { get; set; }
 	
 	// Foreign Keys
 	public string FormId { get; set; } // to FormTypeModel

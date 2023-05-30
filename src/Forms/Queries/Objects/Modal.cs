@@ -1,9 +1,8 @@
 using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
 using Discord;
 using Discord.WebSocket;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using SQLitePCL;
 
 namespace Forms;
 
@@ -39,6 +38,7 @@ public static class ModalSectionTypes
 /// <summary>
 /// A deserializable modal section that generates a <see cref="TextInputBuilder"/>.
 /// </summary>
+[JsonObject(ItemRequired = Newtonsoft.Json.Required.Always)]
 public record ModalSection(string Title, ModalSectionType Type, string Id, string Placeholder, bool Required)
 {
 	/// <summary>
@@ -62,7 +62,8 @@ public record ModalSection(string Title, ModalSectionType Type, string Id, strin
 /// <summary>
 /// A form modal, or simply a list of <see cref="ModalSection"/>s attached to a title.
 /// </summary>
-public record FormModal(string? Title, uint? Merge, List<ModalSection> Sections, List<string> Conditions) : FormQuery(Merge, Conditions)
+[JsonObject(ItemRequired = Required.DisallowNull)]
+public record FormModal(string? Title, uint? Merge, List<ModalSection> Sections, List<string>? Conditions) : FormQuery(Merge, Conditions)
 {
 	/// <inheritdoc/>
 	public override async Task Display(IDiscordInteraction interaction, QueryContext context)

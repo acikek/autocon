@@ -1,11 +1,13 @@
 using Discord;
 using Discord.WebSocket;
+using Newtonsoft.Json;
 
 namespace Forms;
 
 /// <summary>
 ///	A deserializable selection menu choice that generates a <see cref="SelectMenuOptionBuilder"/>.
 /// </summary>
+[JsonObject(ItemRequired = Required.AllowNull)]
 public record SelectionChoice(string Title, string? Description, string Id, string Emoji)
 {
 
@@ -30,7 +32,8 @@ public record SelectionChoice(string Title, string? Description, string Id, stri
 /// A form selection menu containing a list of <see cref="SelectionChoice"/>s
 /// attached to a prompt and a response title.
 /// </summary>
-public record FormSelection(string Title, uint? Merge, List<SelectionChoice> Choices, List<string> Conditions) : FormQuery(Merge, Conditions)
+[JsonObject(ItemRequired = Required.DisallowNull)]
+public record FormSelection(string Title, uint? Merge, List<SelectionChoice> Choices, List<string>? Conditions) : FormQuery(Merge, Conditions)
 {
 	/// <inheritdoc/>
 	public override async Task Display(IDiscordInteraction interaction, QueryContext context)

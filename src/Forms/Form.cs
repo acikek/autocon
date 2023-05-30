@@ -81,12 +81,26 @@ public record Form(string Title, string Id, string Description, string Represent
 		return null;
 	}
 
+	/// <summary>
+	/// Responds and displays the query at the specified index to an interaction user.
+	/// </summary>
 	public async Task DisplayQuery(IDiscordInteraction interaction, uint index)
 		=> await GetQuery(index).Display(interaction, GetContext(index));
 
+	/// <summary>
+	/// Collects and assembles form responses from a query's raw interaction data.
+	/// </summary>
 	public List<FormSectionResponse> GetQueryResponseData(IDiscordInteractionData data, uint index)
 		=> GetQuery(index).GetResponseData(data, GetContext(index));
 
+	/// <summary>
+	/// Registers an application to the <see cref="AutoConDatabase"/> is one is not
+	/// already present for the specified user.
+	/// </summary>
+	/// <returns>
+	/// The query index of the application. If the application has just been created,
+	/// this is <c>0</c>.
+	/// </returns>
 	public async Task<uint> StartApplicationIfNotPresent(IUser user) {
 		using (var db = new AutoConDatabase())
 		{
@@ -106,12 +120,19 @@ public record Form(string Title, string Id, string Description, string Represent
 		}
 	}
 
+	/// <summary>
+	/// Begins or resumes a form application for an interaction user.
+	/// </summary>
 	public async Task BeginApplication(IDiscordInteraction interaction)
 	{
 		var index = await StartApplicationIfNotPresent(interaction.User);
 		await DisplayQuery(interaction, index);
 	}
 
+	/// <returns>
+	/// An embed holding all response data for an application accompanied by 
+	/// metadata from this form.
+	/// </returns>
 	public EmbedBuilder GenerateResponseBuilder(IDiscordInteraction interaction, ICollection<FormSectionResponse> responses)
 	{
 		var builder = new EmbedBuilder()
@@ -131,9 +152,15 @@ public record Form(string Title, string Id, string Description, string Represent
 		return builder;
 	}
 
+	/// <returns>
+	/// Some data that represents a single application of this form.
+	/// </returns>
 	public string GetRepresentativeData(FormResponseData data)
 		=> data.Where(x => x.OptionId == this.Representative).First().Value;
 
+	/// <summary>
+	/// Reads form data from the specified path and constructs a form given an ID.
+	/// </summary>
 	public static Form Read(string path, string id) 
 	{
 		try
@@ -145,7 +172,7 @@ public record Form(string Title, string Id, string Description, string Represent
 			var value = JsonConvert.DeserializeObject<FormData>(json, settings);
 
 			if (value is null) {
-				throw new NullReferenceException($"Modal '{id}' cannot be null");
+				throw new NullReferenceException($"Form cannot be null");
 			}
 
 			var form = new Form(value.Title, id, value.Description, value.Representative, value.Color, value.Emoji, value.Queries);

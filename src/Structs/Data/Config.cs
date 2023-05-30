@@ -5,7 +5,8 @@ namespace Structs;
 public record Config(
 	string ConName, 
 	ulong GuildId,
-	ulong FormSubmissionChannelId) 
+	ulong FormSubmissionChannelId,
+	List<string> SubmissionForms) 
 {
 	
 	public const string PATH = "resources/config.json";

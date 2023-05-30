@@ -6,26 +6,26 @@ public class FormManager
 {
 	public const string LOCATION = "resources/forms";
 
-	public static readonly Dictionary<string, Form> ALL = new Dictionary<string, Form>();
+	public Dictionary<string, Form> All { get; } = new();
 
-	public static readonly Form BOOTH = Create("booth");
-	public static readonly Form EVENT = Create("event");
-
-	public static Form Create(string id)
+	public FormManager() 
 	{
-		var value = Form.Read($"{LOCATION}/{id}.json", id);
-		ALL.Add(id, value);
-		return value;
+		foreach (var file in Directory.GetFiles(LOCATION))
+		{
+			var id = Path.GetFileNameWithoutExtension(file);
+			var form = Form.Read(file, id);
+			All.Add(id, form);
+		}
 	}
 
-	public static QueryContext Parse(string componentId)
+	public QueryContext Parse(string componentId)
 	{
 		var (formId, index) = FormQuery.Parse(componentId);
-		return new QueryContext(ALL[formId], index);
+		return new QueryContext(this.All[formId], index);
 	}
 
-	public static void Init()
-	{}
+	public Form this[string name]
+		=> this.All[name];
 }
 
 public static class SlashCommandOptionBuilderExtensions 
@@ -33,7 +33,7 @@ public static class SlashCommandOptionBuilderExtensions
 
 	public static SlashCommandOptionBuilder AddFormChoices(this SlashCommandOptionBuilder builder, BotContext context) 
 	{
-		foreach (var form in FormManager.ALL.Values)
+		foreach (var form in context.Forms.All.Values)
 		{
 			builder.AddChoice(form.Title, form.Id);
 		}

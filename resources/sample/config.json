@@ -3,5 +3,6 @@
 	"GuildId": 0,
 	"OrganizerRoleId": 0,
 	"ParticipantRoleId": 0,
-	"FormSubmissionChannelId": 0
+	"FormSubmissionChannelId": 0,
+	"SubmissionForms": []
 }

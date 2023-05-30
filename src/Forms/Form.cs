@@ -10,13 +10,13 @@ using FormResponseData = IEnumerable<FormResponseModel>;
 /// A representation of the form data file to be deserialized.
 /// Not yet attached to an ID.
 /// </summary>
-public record FormData(string Title, uint Color, List<FormQuery> Queries);
+public record FormData(string Title, string Description, uint Color, string Emoji, List<FormQuery> Queries);
 
 /// <summary>
 ///	An advancable list of queryable objects to display to the user.
 /// Able to collect and build response data from all individual query responses.
 /// </summary>
-public record Form(string Title, string Id, uint Color, List<FormQuery> Queries) : FormData(Title, Color, Queries)
+public record Form(string Title, string Id, string Description, uint Color, string Emoji, List<FormQuery> Queries) : FormData(Title, Description, Color, Emoji, Queries)
 {
 
 	/// <summary>
@@ -105,6 +105,12 @@ public record Form(string Title, string Id, uint Color, List<FormQuery> Queries)
 		}
 	}
 
+	public async Task BeginApplication(IDiscordInteraction interaction)
+	{
+		var index = await StartApplicationIfNotPresent(interaction.User);
+		await DisplayQuery(interaction, index);
+	}
+
 	public EmbedBuilder GenerateResponseBuilder(IDiscordInteraction interaction, ICollection<FormSectionResponse> responses)
 	{
 		var builder = new EmbedBuilder()
@@ -136,7 +142,7 @@ public record Form(string Title, string Id, uint Color, List<FormQuery> Queries)
 			throw new NullReferenceException($"Modal '{id}' cannot be null");
 		}
 
-		var form = new Form(value.Title, id, value.Color,value.Queries);
+		var form = new Form(value.Title, id, value.Description, value.Color, value.Emoji, value.Queries);
 
 		try
 		{

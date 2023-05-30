@@ -33,7 +33,7 @@ public abstract record FormQuery(uint? Merge, List<string>? Conditions)
 	/// <summary>
 	/// The prefix for queryable component IDs.
 	/// </summary>
-	public const string PREFIX = "form";
+	public const string PREFIX = "Iform";
 
 	/// <returns>
 	///	A tuple with the first element being the condition ID and the second element being whether

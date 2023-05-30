@@ -12,10 +12,9 @@ Task Log(LogMessage message) {
 var client = new DiscordSocketClient();
 var config = Config.Read();
 var properties = Properties.Read();
+var forms = new FormManager();
 
-FormManager.Init();
-
-var context = new BotContext(client, config, properties);
+var context = new BotContext(client, config, properties, forms);
 
 client.Log += Log;
 

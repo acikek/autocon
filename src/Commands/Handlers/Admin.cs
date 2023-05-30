@@ -55,23 +55,6 @@ public static class Admin
 				.WithDisabled(!enabled))
 			.Build();
 
-	private static MessageComponent GetSubmissionsSelectMenu(BotContext context)
-		=> new ComponentBuilder()
-			.WithSelectMenu(new SelectMenuBuilder()
-				.WithCustomId(SELECT_FORM_CHOICE)
-				.WithPlaceholder($"Submit a {context.Config.ConName} Application")
-				.AddOption(new SelectMenuOptionBuilder()
-					.WithLabel("Booth")
-					.WithValue(General.FORM_CHOICE_BOOTH)
-					.WithDescription("Submit a booth to show off a project")
-					.WithEmote(new Emoji("\uD83C\uDFE8")))
-				.AddOption(new SelectMenuOptionBuilder()
-					.WithLabel("Event")
-					.WithValue(General.FORM_CHOICE_EVENT)
-					.WithDescription("Submit an event for groups to participate in")
-					.WithEmote(new Emoji("\uD83C\uDF06"))))
-			.Build();
-
 	private static string GetProgressionMessage(Phase nextPhase) 
 	{
 		var message = $"The convention will progress to the **{nextPhase.GetName()}** phase.";
@@ -81,6 +64,27 @@ public static class Admin
 			message += $"\nAdditionally, {warning}";
 		}
 		return message + "\n\nAre you sure about this? **You cannot undo this action!**";
+	}
+
+	private static MessageComponent BuildSubmissionsSelectMenu(BotContext context)
+	{
+		var builder = new SelectMenuBuilder()
+			.WithCustomId(SELECT_FORM_CHOICE)
+			.WithPlaceholder($"Submit a {context.Config.ConName} Application");
+
+		foreach (var sub in context.Config.SubmissionForms)
+		{
+			var form = context.Forms[sub];
+			builder.AddOption(new SelectMenuOptionBuilder()
+				.WithLabel(form.Title)
+				.WithDescription(form.Description)
+				.WithEmote(new Emoji(form.Emoji))
+				.WithValue(form.Id));
+		}
+
+		return new ComponentBuilder()
+			.WithSelectMenu(builder)
+			.Build();
 	}
 
 	public static async Task Handle(SocketSlashCommand command, BotContext context) 
@@ -100,12 +104,10 @@ public static class Admin
 				break;
 			case SUB_FORM:
 				var formId = (string) sub.Options.First().Value;
-				var form = FormManager.ALL[formId];
-				var currentQuery = await form.StartApplicationIfNotPresent(command.User);
-				await form.DisplayQuery(command, currentQuery);
+				await context.Forms[formId].BeginApplication(command);
 				break;
 			case SUB_SUBMISSIONS:
-				await command.RespondAsync(components: GetSubmissionsSelectMenu(context));
+				await command.RespondAsync(components: BuildSubmissionsSelectMenu(context));
 				break;
 		}
 	}

@@ -27,7 +27,7 @@ public static class FormInteractions
 		if (!FormQuery.IsFormQuery(componentId))
 			return;
 
-		var (form, index) = FormManager.Parse(componentId);
+		var (form, index) = context.Forms.Parse(componentId);
 
 		using (var db = new AutoConDatabase()) 
 		{

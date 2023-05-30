@@ -24,6 +24,17 @@ public static class FormInteractions
 				.WithCustomId(DENY)
 				.WithDisabled(!enabled))
 			.Build();
+
+	public static Modal BuildDenialModal(string rep, ApplicationModel app)
+		=> new ModalBuilder()
+			.WithTitle($"Deny '{rep}'")
+			.WithCustomId($"denial_{app.AppId}")
+			.AddTextInput(new TextInputBuilder()
+				.WithLabel("Denial Reason")
+				.WithRequired(true)
+				.WithStyle(TextInputStyle.Short)
+				.WithCustomId("reason"))
+			.Build();
 	
 	public static async Task Complete(IDiscordInteraction interaction, ApplicationModel app, Form form, BotContext context)
 	{
@@ -86,6 +97,14 @@ public static class FormInteractions
 		}
 	}
 
+	public static Action<MessageProperties> GetMessageUpdate(bool accepted)
+		=> (x) =>
+		{
+			string status = accepted ? "ACCEPTED" : "DENIED";
+			x.Content = $"This application has been **{status}**";
+			x.Components = BuildResultButtons(false);
+		};
+
 	public static async Task HandleResultButton(SocketMessageComponent button, BotContext context)
 	{
 		var id = button.Data.CustomId;
@@ -105,21 +124,67 @@ public static class FormInteractions
 			
 			if (id == ACCEPT)
 			{
-				await button.UpdateAsync(x => 
-				{
-					x.Content = "This application has been **ACCEPTED**";
-					x.Components = BuildResultButtons(false);
-				});
-
-				app.Accepted = true;
-				
-				var user = await context.Client.GetUserAsync(app.UserId);
-				var form = context.Forms[app.FormId];
-				var rep = form.GetRepresentativeData(app.Responses);
-				await user.SendMessageAsync($"Your **{form.Title}** application ({rep}) has been accepted!");
+				await button.UpdateAsync(GetMessageUpdate(true));
+				await ApplyResult(button, db, app, null, context);
+			}
+			else
+			{
+				string rep = context.Forms[app.FormId].GetRepresentativeData(app.Responses);
+				await button.RespondWithModalAsync(BuildDenialModal(rep, app));
 			}
 
 			await db.SaveChangesAsync();
+		}
+	}
+
+	public static async Task HandleDenialModal(SocketModal modal, BotContext context)
+	{
+		var id = modal.Data.CustomId;
+		
+		if (!id.StartsWith("denial_"))
+			return;
+
+		var appId = Guid.Parse(id.Split("denial_", 2)[1]);
+		
+		using (var db = new AutoConDatabase())
+		{
+			var app = await db.Applications.FindAsync(appId);
+
+			if (app is null)
+				return;
+
+			await modal.UpdateAsync(GetMessageUpdate(false));
+			await ApplyResult(modal, db, app, modal.Data.Components.First().Value, context);
+			await db.SaveChangesAsync();
+		}
+	}
+
+	public static async Task ApplyResult(IDiscordInteraction interaction, AutoConDatabase db, ApplicationModel app, string? denialReason, BotContext context)
+	{
+		bool accepted = denialReason is null;
+		
+		var user = await context.Client.GetUserAsync(app.UserId);
+		var form = context.Forms[app.FormId];
+		var rep = form.GetRepresentativeData(app.Responses);
+
+		string status = accepted ? "accepted" : "denied";
+		string message = $"Your **{form.Title}** application ({rep}) has been **{status}**!";
+		
+		if (denialReason is not null)
+		{
+			message += $"\nReason: {denialReason}";
+			message += "\nPlease submit another application with corrections.";
+		}
+
+		await user.SendMessageAsync(message);
+
+		if (accepted)
+		{
+			app.Accepted = true;
+		}
+		else
+		{
+			db.Applications.Remove(app);
 		}
 	}
 
@@ -127,6 +192,8 @@ public static class FormInteractions
 	{
 		context.Client.ModalSubmitted += (modal) => NextQuery(modal, modal.Data, modal.Data.CustomId, context);
 		context.Client.SelectMenuExecuted += (menu) => NextQuery(menu, menu.Data, menu.Data.CustomId, context);
+
 		context.Client.ButtonExecuted += (button) => HandleResultButton(button, context);
+		context.Client.ModalSubmitted += (modal) => HandleDenialModal(modal, context);
 	}
 }

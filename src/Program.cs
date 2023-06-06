@@ -26,7 +26,6 @@ client.Ready += async () =>
 
 client.SlashCommandExecuted += command => Tasks.OnCommand(command, context);
 client.ButtonExecuted += component => Tasks.OnButton(component, context);
-client.ModalSubmitted += modal => Tasks.OnModal(modal, context);
 client.SelectMenuExecuted += menu => Tasks.OnSelectMenu(menu, context);
 
 FormInteractions.Register(context);

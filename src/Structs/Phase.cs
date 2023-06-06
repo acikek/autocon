@@ -1,4 +1,5 @@
 using Discord;
+using Commands;
 
 namespace Structs;
 
@@ -34,7 +35,7 @@ public static class PhaseExtensions {
 
 	public static string? GetAdditionalWarning(this Phase phase)
 		=> phase switch {
-			Phase.Signups => "a selection menu leading to a submission form will be sent in **this channel**.",
+			Phase.Signups => $"you will need to run **/{Admin.NAME} {Admin.SUB_SUBMISSIONS}**.",
 			Phase.Build => "submissions will be **closed off permanently**.",
 			Phase.Open => "**this will open the convention channels to everyone!**",
 			_ => null

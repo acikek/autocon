@@ -48,7 +48,7 @@ public static class FormInteractions
 
 		var channel = context.Client
 			.GetGuild(context.Config.GuildId)
-			.GetTextChannel(context.Config.FormSubmissionChannelId);
+			.GetTextChannel(context.Config.AdminChannelId);
 
 		var message = await channel.SendMessageAsync(embed: embed, components: BuildResultButtons(true));
 		app.MessageId = message.Id;

@@ -3,7 +3,7 @@ using Discord.WebSocket;
 using Forms;
 using Structs;
 
-namespace Commands.Handlers;
+namespace Commands;
 
 public static class Admin
 {
@@ -26,16 +26,6 @@ public static class Admin
 				.WithName(Admin.SUB_PROGRESS)
 				.WithDescription("Progresses the current con phase")
 				.WithType(ApplicationCommandOptionType.SubCommand))
-			.AddOption(new SlashCommandOptionBuilder()
-				.WithName(Admin.SUB_FORM)
-				.WithDescription("Displays a form and embeds its results")
-				.WithType(ApplicationCommandOptionType.SubCommand)
-				.AddOption(new SlashCommandOptionBuilder()
-					.WithName("id")
-					.WithDescription("The ID of the form")
-					.WithType(ApplicationCommandOptionType.String)
-					.WithRequired(true)
-					.AddFormChoices(context)))
 			.AddOption(new SlashCommandOptionBuilder()
 				.WithName(Admin.SUB_SUBMISSIONS)
 				.WithDescription("Bring up the submissions menu")
@@ -102,10 +92,6 @@ public static class Admin
 				var message = GetProgressionMessage(context.Properties.Phase.GetNext());
 				await command.RespondAsync(message, components: GetProgressionButtons(true), ephemeral: true);
 				break;
-			case SUB_FORM:
-				var formId = (string) sub.Options.First().Value;
-				await context.Forms[formId].BeginApplication(command);
-				break;
 			case SUB_SUBMISSIONS:
 				await command.RespondAsync(components: BuildSubmissionsSelectMenu(context));
 				break;
@@ -129,5 +115,11 @@ public static class Admin
 				: "Progression aborted."; 
 			msg.Components = GetProgressionButtons(false);
 		});
+	}
+
+	public static async Task HandleFormSelection(SocketMessageComponent component, BotContext context)
+	{
+		var value = component.Data.Values.First();
+		await context.Forms[value].BeginApplication(component);
 	}
 }

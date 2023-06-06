@@ -5,7 +5,7 @@ namespace Structs;
 public record Config(
 	string ConName, 
 	ulong GuildId,
-	ulong FormSubmissionChannelId,
+	ulong AdminChannelId,
 	List<string> SubmissionForms) 
 {
 	

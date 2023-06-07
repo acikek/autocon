@@ -46,11 +46,9 @@ public static class FormInteractions
 
 		await interaction.RespondAsync($"Your **{form.Title}** form has been recorded.\nBelow is a copy of your results.", embed: embed, ephemeral: true);
 
-		var channel = context.Client
-			.GetGuild(context.Config.GuildId)
-			.GetTextChannel(context.Config.AdminChannelId);
-
+		var channel = context.GetGuild().GetTextChannel(context.Config.AdminChannelId);
 		var message = await channel.SendMessageAsync(embed: embed, components: BuildResultButtons(true));
+		
 		app.MessageId = message.Id;
 	}
 
@@ -181,6 +179,11 @@ public static class FormInteractions
 		if (accepted)
 		{
 			app.Accepted = true;
+			if (interaction.User is IGuildUser guildUser)
+			{
+				if (!guildUser.RoleIds.Contains(context.Config.ParticipantRoleId))
+					await guildUser.AddRoleAsync(context.Config.ParticipantRoleId);
+			}
 		}
 		else
 		{

@@ -9,7 +9,7 @@ public class Tasks
 
 	public static async Task OnReady(BotContext context) 
 	{
-		var guild = context.Client.GetGuild(context.Config.GuildId);
+		var guild = context.GetGuild();
 
 		try
 		{

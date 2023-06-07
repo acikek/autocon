@@ -1,3 +1,4 @@
+using Discord.WebSocket;
 using Newtonsoft.Json;
 
 namespace Structs;
@@ -6,6 +7,7 @@ public record Config(
 	string ConName, 
 	ulong GuildId,
 	ulong AdminChannelId,
+	ulong ParticipantRoleId,
 	List<string> SubmissionForms) 
 {
 	

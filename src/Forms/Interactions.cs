@@ -179,11 +179,9 @@ public static class FormInteractions
 		if (accepted)
 		{
 			app.Accepted = true;
-			if (interaction.User is IGuildUser guildUser)
-			{
-				if (!guildUser.RoleIds.Contains(context.Config.ParticipantRoleId))
-					await guildUser.AddRoleAsync(context.Config.ParticipantRoleId);
-			}
+			var guildUser = context.GetGuild().GetUser(app.UserId);
+			if (!guildUser.Roles.Where(x => x.Id == context.Config.ParticipantRoleId).Any())
+				await guildUser.AddRoleAsync(context.Config.ParticipantRoleId);
 		}
 		else
 		{

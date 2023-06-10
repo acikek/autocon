@@ -33,7 +33,7 @@ public record SelectionChoice(string Title, string? Description, string Id, stri
 /// attached to a prompt and a response title.
 /// </summary>
 [JsonObject(ItemRequired = Required.DisallowNull)]
-public record FormSelection(string Title, uint? Merge, List<SelectionChoice> Choices, List<string>? Conditions) : FormQuery(Merge, Conditions)
+public record FormSelection(string Title, uint? Merge, string? Message, List<SelectionChoice> Choices, List<string>? Conditions) : FormQuery(Merge, Conditions)
 {
 	/// <inheritdoc/>
 	public override async Task Display(IDiscordInteraction interaction, QueryContext context)
@@ -51,7 +51,7 @@ public record FormSelection(string Title, uint? Merge, List<SelectionChoice> Cho
 			.WithSelectMenu(builder)
 			.Build();
 
-		await interaction.RespondAsync(components: components, ephemeral: true);
+		await interaction.RespondAsync(this.Message, components: components, ephemeral: true);
 	}
 
 	/// <inheritdoc/>

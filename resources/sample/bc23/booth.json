@@ -67,6 +67,7 @@
 		{
 			"Type": "selection",
 			"Title": "Integrate your project with Arch-Ex 2?",
+			"Message": "*Architecture Extensions* adds many interesting block shapes. Integrating with this mod is usually for cosmetic blocks that you'd like in new shapes.",
 			"Choices": [
 				{
 					"Title": "No",

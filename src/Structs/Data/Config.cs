@@ -8,6 +8,7 @@ public record Config(
 	ulong GuildId,
 	ulong AdminChannelId,
 	ulong ParticipantRoleId,
+	ulong OrganizerRoleId,
 	List<string> SubmissionForms) 
 {
 	

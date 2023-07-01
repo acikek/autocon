@@ -13,7 +13,6 @@ public static class Admin
 
 	public const string SUB_PROGRESS = "progress";
 	public const string SUB_SUBMISSIONS = "submissions";
-	public const string SUB_APPLICATIONS = "applications";
 
 	public const string SELECT_FORM_CHOICE = "form_choice";
 	public const string BUTTON_PROGRESS = "progress";
@@ -32,10 +31,6 @@ public static class Admin
 			.AddOption(new SlashCommandOptionBuilder()
 				.WithName(SUB_SUBMISSIONS)
 				.WithDescription("Bring up the submissions menu")
-				.WithType(ApplicationCommandOptionType.SubCommand))
-			.AddOption(new SlashCommandOptionBuilder()
-				.WithName(SUB_APPLICATIONS)
-				.WithDescription("View all application info")
 				.WithType(ApplicationCommandOptionType.SubCommand));
 
 	private static MessageComponent GetProgressionButtons(bool enabled)
@@ -73,37 +68,15 @@ public static class Admin
 		{
 			var form = context.Forms[sub];
 			builder.AddOption(new SelectMenuOptionBuilder()
-				.WithLabel(form.Title)
-				.WithDescription(form.Description)
-				.WithEmote(new Emoji(form.Emoji))
+				.WithLabel(form.Data.Title)
+				.WithDescription(form.Data.Description)
+				.WithEmote(new Emoji(form.Data.Emoji))
 				.WithValue(form.Id));
 		}
 
 		return new ComponentBuilder()
 			.WithSelectMenu(builder)
 			.Build();
-	}
-
-	private static Embed BuildApplicationsEmbed(BotContext context)
-	{
-		var firstForm = context.Forms.All.First().Value;
-		var embed = new EmbedBuilder()
-			.WithTitle($"{context.Config.ConName} Applications")
-			.WithColor(firstForm.Color);
-
-		using (var db = new AutoConDatabase())
-		{
-			foreach (var (id, form) in context.Forms.All)
-			{
-				var apps = db.Applications.Where(x => x.FormId == id);
-				var accepted = apps.Where(x => x.Accepted);
-
-				var value = $"`{apps.Count()}` total - `{accepted.Count()}` accepted - `{apps.Count() - accepted.Count()}` outgoing";
-				embed.AddField(form.Title, value);
-			}
-		}
-
-		return embed.Build();
 	}
 
 	public static async Task Handle(SocketSlashCommand command, BotContext context) 
@@ -123,9 +96,6 @@ public static class Admin
 				break;
 			case SUB_SUBMISSIONS:
 				await command.RespondAsync(components: BuildSubmissionsSelectMenu(context));
-				break;
-			case SUB_APPLICATIONS:
-				await command.RespondAsync(embed: BuildApplicationsEmbed(context));
 				break;
 		}
 	}

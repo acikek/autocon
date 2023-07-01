@@ -38,13 +38,11 @@ public static class FormInteractions
 	
 	public static async Task Complete(IDiscordInteraction interaction, ApplicationModel app, Form form, BotContext context)
 	{
-		app.Responses.Sort((x, y) => x.Index.CompareTo(y.Index));
 		app.InProgress = false;
 
-		var allResponses = app.Responses.Select(x => x.Revert()).ToList();
-		var embed = form.GenerateResponseBuilder(interaction, allResponses).Build();
+		var embed = form.GenerateResponseBuilder(interaction.User, app.GetFormSectionResponses()).Build();
 
-		await interaction.RespondAsync($"Your **{form.Title}** form has been recorded.\nBelow is a copy of your results.", embed: embed, ephemeral: true);
+		await interaction.RespondAsync($"Your **{form.Data.Title}** form has been recorded.\nBelow is a copy of your results.", embed: embed, ephemeral: true);
 
 		var channel = context.GetGuild().GetTextChannel(context.Config.AdminChannelId);
 		var message = await channel.SendMessageAsync(embed: embed, components: BuildResultButtons(true));
@@ -166,7 +164,7 @@ public static class FormInteractions
 		var rep = form.GetRepresentativeData(app.Responses);
 
 		string status = accepted ? "accepted" : "denied";
-		string message = $"Your **{form.Title}** application ({rep}) has been **{status}**!";
+		string message = $"Your **{form.Data.Title}** application ({rep}) has been **{status}**!";
 		
 		if (denialReason is not null)
 		{

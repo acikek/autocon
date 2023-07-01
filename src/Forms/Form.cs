@@ -11,13 +11,13 @@ using FormResponseData = IEnumerable<FormResponseModel>;
 /// Not yet attached to an ID.
 /// </summary>
 [JsonObject(ItemRequired = Required.Always)]
-public record FormData(string Title, string Description, string Representative, uint Color, string Emoji, List<FormQuery> Queries);
+public record FormData(string Title, string Description, string Representative, bool Visible, uint Color, string Emoji, List<FormQuery> Queries);
 
 /// <summary>
 ///	An advancable list of queryable objects to display to the user.
 /// Able to collect and build response data from all individual query responses.
 /// </summary>
-public record Form(string Title, string Id, string Description, string Representative, uint Color, string Emoji, List<FormQuery> Queries) : FormData(Title, Description, Representative, Color, Emoji, Queries)
+public record Form(string Id, FormData Data)
 {
 
 	/// <summary>
@@ -26,7 +26,7 @@ public record Form(string Title, string Id, string Description, string Represent
 	/// </summary>
 	public void Init()
 	{
-		for (uint i = 0; i < this.Queries.Count(); i++)
+		for (uint i = 0; i < this.Data.Queries.Count(); i++)
 		{
 			try
 			{
@@ -54,13 +54,13 @@ public record Form(string Title, string Id, string Description, string Represent
 	/// Whether the specified query index exists in the <see cref="Form.Queries"/> list.
 	/// </returns>
 	public bool HasQuery(uint index) 
-		=> index < this.Queries.Count();
+		=> index < this.Data.Queries.Count();
 
 	/// <returns>
 	/// The query at the specified index, if any.
 	/// </returns>
 	public FormQuery GetQuery(uint index)
-		=> this.Queries.ElementAt((int) index);
+		=> this.Data.Queries.ElementAt((int) index);
 
 	/// <returns>
 	///	The next query that can be displayed given the current response data.
@@ -68,7 +68,7 @@ public record Form(string Title, string Id, string Description, string Represent
 	/// </returns>
 	public uint? GetNextQuery(uint currentQuery, FormResponseData responseData)
 	{
-		for (uint i = currentQuery + 1; i < this.Queries.Count(); i++)
+		for (uint i = currentQuery + 1; i < this.Data.Queries.Count(); i++)
 		{
 			if (!HasQuery(i))
 				return null;
@@ -136,8 +136,8 @@ public record Form(string Title, string Id, string Description, string Represent
 	private EmbedBuilder GenerateBaseResponseBuilder(ICollection<FormSectionResponse> responses)
 	{
 		var builder = new EmbedBuilder()
-			.WithTitle($"New {this.Title} Response")
-			.WithColor(this.Color)
+			.WithTitle($"New {this.Data.Title} Response")
+			.WithColor(this.Data.Color)
 			.WithCurrentTimestamp();
 
 		for (int i = 0; i < responses.Count(); i++)
@@ -152,12 +152,12 @@ public record Form(string Title, string Id, string Description, string Represent
 	/// <summary>
 	/// <seealso cref="GenerateBaseResponseBuilder"/>
 	/// </summary>
-	public EmbedBuilder GenerateResponseBuilder(IDiscordInteraction interaction, ICollection<FormSectionResponse> responses)
+	public EmbedBuilder GenerateResponseBuilder(IUser user, ICollection<FormSectionResponse> responses)
 	{
 		return GenerateBaseResponseBuilder(responses)
 			.WithAuthor(new EmbedAuthorBuilder()
-				.WithName($"@{interaction.User.Username}")
-				.WithIconUrl(interaction.User.GetAvatarUrl()));
+			.WithName($"@{user.Username}")
+			.WithIconUrl(user.GetAvatarUrl()));
 	}
 
 	/// <summary>
@@ -167,14 +167,14 @@ public record Form(string Title, string Id, string Description, string Represent
 	{
 		return GenerateBaseResponseBuilder(responses)
 			.WithAuthor(new EmbedAuthorBuilder()
-				.WithName(email));
+			.WithName(email));
 	}
 
 	/// <returns>
 	/// Some data that represents a single application of this form.
 	/// </returns>
 	public string GetRepresentativeData(FormResponseData data)
-		=> data.Where(x => x.OptionId == this.Representative).First().Value;
+		=> data.Where(x => x.OptionId == this.Data.Representative).First().Value;
 
 	/// <summary>
 	/// Reads form data from the specified path and constructs a form given an ID.
@@ -193,7 +193,7 @@ public record Form(string Title, string Id, string Description, string Represent
 				throw new NullReferenceException($"Form cannot be null");
 			}
 
-			var form = new Form(value.Title, id, value.Description, value.Representative, value.Color, value.Emoji, value.Queries);
+			var form = new Form(id, value);
 			form.Init();
 			return form;
 		}

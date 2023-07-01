@@ -35,7 +35,7 @@ public static class SlashCommandOptionBuilderExtensions
 	{
 		foreach (var form in context.Forms.All.Values)
 		{
-			builder.AddChoice(form.Title, form.Id);
+			builder.AddChoice(form.Data.Title, form.Id);
 		}
 		return builder;
 	}

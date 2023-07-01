@@ -15,6 +15,7 @@ public class Tasks
 		{
 			await guild.CreateApplicationCommandAsync(Admin.GetCommand(context).Build());
 			await guild.CreateApplicationCommandAsync(Form.GetCommand(context).Build());
+			await guild.CreateApplicationCommandAsync(Applications.GetCommand(context).Build());
 			await context.Properties.UpdateActivity(context);
 		}
 		catch (HttpException exception)
@@ -33,6 +34,9 @@ public class Tasks
 				break;
 			case Form.NAME:
 				await Form.Handle(command, context);
+				break;
+			case Applications.NAME:
+				await Applications.Handle(command, context);
 				break;
 		}
 	}

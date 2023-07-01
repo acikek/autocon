@@ -61,6 +61,12 @@ public class ApplicationModel
 				Index = count + i
 			});
 	}
+
+	public ICollection<FormSectionResponse> GetFormSectionResponses()
+	{
+		this.Responses.Sort((x, y) => x.Index.CompareTo(y.Index));
+		return this.Responses.Select(x => x.Revert()).ToList();
+	}
 }
 
 public class FormTypeModel

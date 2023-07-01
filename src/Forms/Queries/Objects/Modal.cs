@@ -69,7 +69,7 @@ public record FormModal(string? Title, uint? Merge, List<ModalSection> Sections,
 	public override async Task Display(IDiscordInteraction interaction, QueryContext context)
 	{
 		var builder = new ModalBuilder()
-			.WithTitle(this.Title ?? context.Form.Title)
+			.WithTitle(this.Title ?? context.Form.Data.Title)
 			.WithCustomId(context.GetComponentId());
 
 		foreach (var section in this.Sections)

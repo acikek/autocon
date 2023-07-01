@@ -90,17 +90,22 @@ public class FormTypeModel
 
 	public Stream CreateExportStream()
 	{
+		var appLines = this.Applications
+			.Where(a => a.Accepted)
+			.Select(a => a.GetCSVString(false));
+
 		List<string> lines = new();
 		lines.Add(this.Applications.First().GetCSVString(true));
-		lines.AddRange(this.Applications.Select(a => a.GetCSVString(false)));
-		var data = String.Join("\n", lines);
+		lines.AddRange(appLines);
 
+		var data = String.Join("\n", lines);
 		var stream = new MemoryStream();
 		var writer = new StreamWriter(stream);
+		
 		writer.Write(data);
 		writer.Flush();
 		stream.Position = 0;
-		
+
 		return stream;
 	}
 }

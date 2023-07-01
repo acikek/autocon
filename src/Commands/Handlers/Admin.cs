@@ -13,6 +13,7 @@ public static class Admin
 
 	public const string SUB_PROGRESS = "progress";
 	public const string SUB_SUBMISSIONS = "submissions";
+	public const string SUB_EXPORT = "export";
 
 	public const string SELECT_FORM_CHOICE = "form_choice";
 	public const string BUTTON_PROGRESS = "progress";
@@ -31,7 +32,16 @@ public static class Admin
 			.AddOption(new SlashCommandOptionBuilder()
 				.WithName(SUB_SUBMISSIONS)
 				.WithDescription("Bring up the submissions menu")
-				.WithType(ApplicationCommandOptionType.SubCommand));
+				.WithType(ApplicationCommandOptionType.SubCommand))
+			.AddOption(new SlashCommandOptionBuilder()
+				.WithName(SUB_EXPORT)
+				.WithDescription("Export application data for a form")
+				.WithType(ApplicationCommandOptionType.SubCommand)
+					.AddOption(new SlashCommandOptionBuilder()
+						.WithName("form")
+						.WithDescription("The form to export")
+						.WithType(ApplicationCommandOptionType.String)
+						.AddFormChoices(context)));
 
 	private static MessageComponent GetProgressionButtons(bool enabled)
 		=> new ComponentBuilder()
@@ -97,6 +107,10 @@ public static class Admin
 			case SUB_SUBMISSIONS:
 				await command.RespondAsync(components: BuildSubmissionsSelectMenu(context));
 				break;
+			case SUB_EXPORT:
+				var formId = (string) sub.Options.First().Value;
+				await HandleExport(command, formId, context);
+				break;
 		}
 	}
 
@@ -123,5 +137,20 @@ public static class Admin
 	{
 		var value = component.Data.Values.First();
 		await context.Forms[value].BeginApplication(component);
+	}
+
+	public static async Task HandleExport(SocketSlashCommand command, string formId, BotContext context)
+	{
+		using (var db = new AutoConDatabase())
+		{
+			var form = db.FindForm(formId);
+			if (form is null)
+				return;
+
+			using (var export = form.CreateExportStream())
+			{
+				await command.RespondWithFileAsync(export, $"autocon-export_{formId}.csv", ephemeral: true);	
+			}
+		}
 	}
 }

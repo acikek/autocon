@@ -2,7 +2,6 @@ using Database;
 using Discord;
 using Discord.WebSocket;
 using Forms;
-using Microsoft.EntityFrameworkCore;
 
 namespace Commands;
 
@@ -88,7 +87,7 @@ public static class Applications
 
 		if (!isSelf && !context.IsUserElevated(command) && !form.Data.Visible)
 		{
-			await command.RespondAsync("You do not have permission to view this form type.");
+			await command.RespondAsync("You do not have permission to view this application.", ephemeral: true);
 			return;
 		}
 
@@ -97,14 +96,16 @@ public static class Applications
 			var formModel = db.FindForm(formId);
 			var apps = formModel?.Applications.Where(x => x.UserId == user.Id);
 
-			if (apps is null)
+			if (apps is null || !apps.Any())
+			{
+				await command.RespondAsync("This user doesn't have any applications for this form.", ephemeral: true);
 				return;
+			}
 
-			var app = apps.First();
+			//var app = apps.First();
+			//var embed = form.GenerateResponseBuilder(user, app.GetFormSectionResponses()).Build();
 
-			var embed = form.GenerateResponseBuilder(user, app.GetFormSectionResponses()).Build();
-
-			await command.RespondAsync(embed: embed);
+			await command.RespondAsync("WIP", ephemeral: true);
 		}
 	}
 }

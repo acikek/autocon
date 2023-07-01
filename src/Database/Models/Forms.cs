@@ -67,6 +67,14 @@ public class ApplicationModel
 		this.Responses.Sort((x, y) => x.Index.CompareTo(y.Index));
 		return this.Responses.Select(x => x.Revert()).ToList();
 	}
+
+	public string GetCSVString(bool title)
+	{
+		var values = this.Responses
+			.Select(r => title ? r.Title : r.Value)
+			.Prepend(title ? "User ID" : this.UserId.ToString());
+		return String.Join(",", values);
+	}
 }
 
 public class FormTypeModel
@@ -79,6 +87,22 @@ public class FormTypeModel
 
 	public ApplicationModel? FindResumable(ulong userId)
 		=> this.Applications.Find(x => x.InProgress && x.UserId == userId);
+
+	public Stream CreateExportStream()
+	{
+		List<string> lines = new();
+		lines.Add(this.Applications.First().GetCSVString(true));
+		lines.AddRange(this.Applications.Select(a => a.GetCSVString(false)));
+		var data = String.Join("\n", lines);
+
+		var stream = new MemoryStream();
+		var writer = new StreamWriter(stream);
+		writer.Write(data);
+		writer.Flush();
+		stream.Position = 0;
+		
+		return stream;
+	}
 }
 
 public class UserModel

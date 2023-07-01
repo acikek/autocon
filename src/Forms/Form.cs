@@ -133,14 +133,11 @@ public record Form(string Title, string Id, string Description, string Represent
 	/// An embed holding all response data for an application accompanied by 
 	/// metadata from this form.
 	/// </returns>
-	public EmbedBuilder GenerateResponseBuilder(IDiscordInteraction interaction, ICollection<FormSectionResponse> responses)
+	private EmbedBuilder GenerateBaseResponseBuilder(ICollection<FormSectionResponse> responses)
 	{
 		var builder = new EmbedBuilder()
 			.WithTitle($"New {this.Title} Response")
 			.WithColor(this.Color)
-			.WithAuthor(new EmbedAuthorBuilder()
-				.WithName($"@{interaction.User.Username}")
-				.WithIconUrl(interaction.User.GetAvatarUrl()))
 			.WithCurrentTimestamp();
 
 		for (int i = 0; i < responses.Count(); i++)
@@ -150,6 +147,27 @@ public record Form(string Title, string Id, string Description, string Represent
 		}
 
 		return builder;
+	}
+
+	/// <summary>
+	/// <seealso cref="GenerateBaseResponseBuilder"/>
+	/// </summary>
+	public EmbedBuilder GenerateResponseBuilder(IDiscordInteraction interaction, ICollection<FormSectionResponse> responses)
+	{
+		return GenerateBaseResponseBuilder(responses)
+			.WithAuthor(new EmbedAuthorBuilder()
+				.WithName($"@{interaction.User.Username}")
+				.WithIconUrl(interaction.User.GetAvatarUrl()));
+	}
+
+	/// <summary>
+	/// <seealso cref="GenerateBaseResponseBuilder"/>
+	/// </summary>
+	public EmbedBuilder GenerateResponseBuilder(string email, ICollection<FormSectionResponse> responses)
+	{
+		return GenerateBaseResponseBuilder(responses)
+			.WithAuthor(new EmbedAuthorBuilder()
+				.WithName(email));
 	}
 
 	/// <returns>

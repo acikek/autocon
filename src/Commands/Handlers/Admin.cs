@@ -26,15 +26,15 @@ public static class Admin
 			.WithDescription("Admin control panel")
 			.WithDefaultPermission(false)
 			.AddOption(new SlashCommandOptionBuilder()
-				.WithName(Admin.SUB_PROGRESS)
+				.WithName(SUB_PROGRESS)
 				.WithDescription("Progresses the current con phase")
 				.WithType(ApplicationCommandOptionType.SubCommand))
 			.AddOption(new SlashCommandOptionBuilder()
-				.WithName(Admin.SUB_SUBMISSIONS)
+				.WithName(SUB_SUBMISSIONS)
 				.WithDescription("Bring up the submissions menu")
 				.WithType(ApplicationCommandOptionType.SubCommand))
 			.AddOption(new SlashCommandOptionBuilder()
-				.WithName(Admin.SUB_APPLICATIONS)
+				.WithName(SUB_APPLICATIONS)
 				.WithDescription("View all application info")
 				.WithType(ApplicationCommandOptionType.SubCommand));
 

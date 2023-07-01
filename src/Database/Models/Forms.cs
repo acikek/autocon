@@ -63,14 +63,14 @@ public class ApplicationModel
 	}
 
 	public ICollection<FormSectionResponse> GetFormSectionResponses()
-	{
-		this.Responses.Sort((x, y) => x.Index.CompareTo(y.Index));
-		return this.Responses.Select(x => x.Revert()).ToList();
-	}
+		=> this.Responses
+			.OrderBy(x => x.Index)
+			.Select(x => x.Revert()).ToList();
 
 	public string GetCSVString(bool title)
 	{
 		var values = this.Responses
+			.OrderBy(x => x.Title)
 			.Select(r => title ? r.Title : r.Value)
 			.Prepend(title ? "User ID" : this.UserId.ToString());
 		return String.Join(",", values);
@@ -101,7 +101,7 @@ public class FormTypeModel
 		var data = String.Join("\n", lines);
 		var stream = new MemoryStream();
 		var writer = new StreamWriter(stream);
-		
+
 		writer.Write(data);
 		writer.Flush();
 		stream.Position = 0;
